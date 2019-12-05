@@ -174,7 +174,7 @@ class ImportExportState extends State<ImportExport> {
                 Container(
                     width: _width * 9 / 10,
                     color: Colors.grey[300],
-                    child: Text(_dir.path + "/" + _fileName,
+                    child: Text(_dir.path + "/\n" + _fileName,
                         style: TextStyle(fontSize: _width / 20))),
 //        SizedBox(height: _width / 50),
 

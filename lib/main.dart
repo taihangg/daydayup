@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       locale: Locale("zh", "CN"),
-      title: '月历任务',
+      title: '天天向上',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

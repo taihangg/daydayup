@@ -310,6 +310,8 @@ class AssignmentAddEditPageState extends State<AssignmentAddEditPage> {
         if (null != dt) {
           _beginDate = dt;
           _beginDateStr = _fmt.format(dt);
+        }
+        if (null != _beginDateStr) {
           _beginText = Text(
             _beginDateStr,
             style: TextStyle(

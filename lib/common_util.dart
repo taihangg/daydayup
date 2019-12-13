@@ -323,3 +323,29 @@ Widget buildLoadingView({double topPadding, double height}) {
 //        ],
           ));
 }
+
+final RegExp _reDate = RegExp(
+    r"(?<year>[0-9]{4})[^0-9](?<month>[0-9]{1,2})[^0-9](?<day>[0-9]{1,2})");
+final _dtBase = DateTime(1900, 1, 0);
+DateInt parseExcelDate(dynamic value) {
+  if (value is String) {
+    final match = _reDate.firstMatch(value);
+    if (null == match) {
+      return null;
+    }
+
+    int year = int.parse(match.namedGroup("year"));
+    int month = int.parse(match.namedGroup("month"));
+    int day = int.parse(match.namedGroup("day"));
+
+    return DateInt.fromInt(year * 10000 + month * 100 + day);
+  } else if (value is double) {
+    try {
+      int days = value.toInt();
+      DateTime dt = _dtBase.add(Duration(days: days - 1));
+      return DateInt(dt);
+    } catch (err) {
+      return null;
+    }
+  }
+}

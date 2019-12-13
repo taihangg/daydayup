@@ -445,7 +445,9 @@ class ImportExportState extends State<ImportExport> {
         }
         if (0 != doneCount) {
           decoder.insertRow(table, row);
-          for (int i = 0; i < column; i++) {
+          final di = DateInt.fromInt(date);
+          decoder.updateCell(table, 0, row, "${di.year}/${di.month}/${di.day}");
+          for (int i = 1; i < column; i++) {
             if (null != rowData[i]) {
               decoder.updateCell(table, i, row, rowData[i]);
               rowData[i] = null;
@@ -479,7 +481,7 @@ class ImportExportState extends State<ImportExport> {
 
     SpreadsheetDecoder decoder;
     try {
-      decoder = new SpreadsheetDecoder.decodeBytes(bytes, update: true);
+      decoder = SpreadsheetDecoder.decodeBytes(bytes, update: true);
     } catch (err) {
       return "请选择合法的xlsx文件";
     }
@@ -575,22 +577,8 @@ class ImportExportState extends State<ImportExport> {
     int records = 0;
     for (int r = 1; r < table.maxRows; r++) {
       final v = table.rows[r][startColumn];
-      DateInt dateInt;
-
-      if (v is double) {
-        int days;
-        days = v.toInt();
-        DateTime dt = dtBase.add(Duration(days: days - 1));
-        dateInt = DateInt(dt);
-      } else if (v is String) {
-        try {
-          int dt = int.parse(v);
-          dateInt = DateInt.fromInt(dt);
-        } catch (err) {
-          print("import parse date error: ${table.name}[$r][1]:$v");
-          continue;
-        }
-      } else {
+      DateInt dateInt = parseExcelDate(v);
+      if (null == dateInt) {
         print("import parse date error: ${table.name}[$r][1]:$v");
         continue;
       }

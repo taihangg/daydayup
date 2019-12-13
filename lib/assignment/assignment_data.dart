@@ -481,10 +481,10 @@ primary key (${_columnDate}, ${_columnID})
 
     int newPeriodSum = periodSum;
     if (periodModified) {
-      int newPeriodSum =
-          await countPeriodSum(newData.beginDate, newData.endDate);
-      if (newPeriodSum != periodSum) {
-        values[_columnPeriodSum] = periodSum;
+      newPeriodSum = await countPeriodSum(newData.beginDate, newData.endDate);
+      if (periodSum != newPeriodSum) {
+        periodSum = newPeriodSum;
+        values[_columnPeriodSum] = newPeriodSum;
       }
     }
 
@@ -1453,7 +1453,7 @@ primary key (${_columnDate}, ${_columnID})
       }
 
       // 更新periodSum
-      final int newPeriodSum = await a.countPeriodSum(a.beginDate, a.beginDate);
+      final int newPeriodSum = await a.countPeriodSum(a.beginDate, a.endDate);
       if (a.periodSum != newPeriodSum) {
         a.periodSum = newPeriodSum;
         valuePairs[_columnPeriodSum] = newPeriodSum;

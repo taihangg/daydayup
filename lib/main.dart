@@ -8,6 +8,7 @@ import 'calendar/month_todo_page.dart';
 import 'my_navigation_bar.dart';
 import 'weather/weather_view.dart';
 import 'assignment/assignment_detail_view.dart';
+import 'plugins/common_localizations_delegate.dart';
 
 void main() {
 //  testFn();
@@ -30,10 +31,13 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        //自定义代理
+        CommonLocalizationsDelegate(),
+//        DefaultCupertinoLocalizations.delegate,
+//        GlobalCupertinoLocalizations.delegate,
       ],
       locale: Locale("zh", "CN"),
+      supportedLocales: [Locale('zh', 'CN'), Locale('en', 'US')],
       title: '天天向上',
       theme: ThemeData(
         primarySwatch: Colors.blue,

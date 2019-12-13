@@ -62,6 +62,12 @@ class MonthViewActionBar extends StatelessWidget {
               //通过showDialog方法展示alert弹框
               context: context,
               builder: (context) {
+//  如果不能显示中文，就需要修改文件
+//  D:\bin\android\flutter\packages\flutter\lib\src\cupertino\date_picker.dart
+// 中的_CupertinoDatePickerDateTimeState类的build函数，在switch之前，增加
+// localizations.datePickerDateOrder=DatePickerDateOrder.ymd
+// 并修改_buildMonthPicker中对月份的字符串化
+
                 return Container(
 //                width: screenWidth,
                   height: 300,

@@ -400,14 +400,15 @@ class _AssignmentCardState extends State<AssignmentCard>
           final pastDoneAverage = assignmentData.pastDoneAverage();
           if (null != pastDoneAverage) {
             extraLines.add(pastDoneAverage);
-            indicators.add("过去平均(${pastDoneAverage.toStringAsFixed(1)})");
+
+            indicators.add("过去平均(${assignmentData.pastDoneAverageString()})");
             indicatorColors.add(Colors.deepPurpleAccent);
           }
 
-          final futureDoneAverage = assignmentData.futureAverageDone();
-          if (null != futureDoneAverage) {
-            extraLines.add(futureDoneAverage);
-            indicators.add("剩余平均(${futureDoneAverage.toStringAsFixed(1)})");
+          final futureAverageDone = assignmentData.futureAverageDone();
+          if (null != futureAverageDone) {
+            extraLines.add(futureAverageDone);
+            indicators.add("剩余平均(${assignmentData.futureAverageDoneString()})");
             indicatorColors.add(Colors.orange);
           }
 
@@ -422,7 +423,7 @@ class _AssignmentCardState extends State<AssignmentCard>
             extraLineColors: indicatorColors,
             indicators: indicators,
             indicatorColors: indicatorColors,
-            areaLine: futureDoneAverage,
+            areaLine: futureAverageDone,
             showZeroPoint: false,
           );
         },

@@ -460,6 +460,10 @@ primary key (${_columnDate}, ${_columnID})
       values[_columnAssignmentName] = newData.name;
     }
 
+    if (otherDone != newData.otherDone) {
+      values[_columnOtherDone] = newData.otherDone;
+    }
+
     if (step != newData.step) {
       values[_columnStep] = newData.step;
     }
@@ -503,14 +507,16 @@ primary key (${_columnDate}, ${_columnID})
       }
 
       name = newData.name;
+      otherDone = newData.otherDone;
       step = newData.step;
+      target = newData.target;
 
       if (periodModified) {
         beginDate = newData.beginDate;
         beginDateInt = (null == beginDate) ? null : DateInt(beginDate);
         endDate = newData.endDate;
         endDateInt = (null == endDate) ? null : DateInt(endDate);
-        target = newData.target;
+
         periodSum = newPeriodSum;
       }
     }
@@ -804,7 +810,9 @@ primary key (${_columnDate}, ${_columnID})
     if (hasEndDate && hasTarget) {
       assert(null != endDate);
       assert(null != target);
-      return "${futureAverageDone().toStringAsFixed(1)}";
+      final value = futureAverageDone();
+      final fixed = (value < 10) ? 2 : 1;
+      return "${value.toStringAsFixed(fixed)}";
     } else {
       return " ";
     }
@@ -822,7 +830,9 @@ primary key (${_columnDate}, ${_columnID})
   String pastDoneAverageString() {
     final daysCount = pastDaysCount;
     if (0 != daysCount) {
-      return "${(periodSum / daysCount).toStringAsFixed(1)}";
+      final double value = periodSum / daysCount;
+      final int fixed = (value < 10) ? 2 : 1;
+      return "${value.toStringAsFixed(fixed)}";
     } else {
       return "0";
     }

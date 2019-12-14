@@ -94,7 +94,8 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
 
   Widget _buildAssignmentCards() {
     bool testShowOne = false;
-//    testShowOne = true;
+//    testShowOne = true; // for test
+
     Widget child;
     if (testShowOne) {
       child = AssignmentCard(_assignmentDataList.first);

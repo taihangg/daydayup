@@ -4,6 +4,7 @@ import 'assignment/assignment_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'calendar/month_todo_page.dart';
 import 'my_navigation_bar.dart';
 import 'weather/weather_view.dart';
@@ -57,6 +58,10 @@ class _HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<_HomePage> {
+  _HomePageState() {
+    _checkPermission();
+  }
+
   final double _width = MediaQueryData.fromWindow(window).size.width;
   final double _height = MediaQueryData.fromWindow(window).size.height;
 
@@ -139,5 +144,36 @@ class _HomePageState extends State<_HomePage> {
     ));
 
     _tabBarViewChildren.add(WeatherPage());
+  }
+
+  _checkPermission() async {
+    PermissionStatus storagePermission = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.storage);
+
+    if (PermissionStatus.granted != storagePermission) {
+//    bool isOpened = await PermissionHandler().openAppSettings();
+
+      Map<PermissionGroup, PermissionStatus> status = await PermissionHandler()
+          .requestPermissions([PermissionGroup.storage]);
+
+//      if (PermissionStatus.granted != status.values.first.value) {
+//        Scaffold.of(context).showSnackBar(SnackBar(
+//          content: Text(
+//            "请允许app读写存储的权限\n否则无法工作",
+//            style: TextStyle(color: Colors.red, fontSize: 50),
+//          ),
+//          duration: Duration(seconds: 5),
+//          backgroundColor: Colors.tealAccent,
+////    action: SnackBarAction(
+////      label: "button",
+////      onPressed: () {
+////        print("in press");
+////      },
+////    ),
+//        ));
+//      }
+    }
+
+    return;
   }
 }

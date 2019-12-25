@@ -55,11 +55,16 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
       _date = _fmt.parse(widget.dateStr);
       _dateController.text = widget.dateStr;
       _oldNum = widget.oldNum;
-      _oldDoneController.text = (null == _oldNum) ? "无" : "$_oldNum";
+//      _oldDoneController.text = (null == _oldNum) ? "无" : "$_oldNum";
+
+      if (null != _oldNum) {
+        _lastNewNum = 0;
+        _thisNewNum = _oldNum;
+      }
     } else {
-      final today = DateTime.now();
-      final yesterday = DateTime(today.year, today.month, today.day - 1);
-      _updateDate(yesterday);
+      final today = DateTime.now(); // 默认日期为今天
+//      final yesterday = DateTime(today.year, today.month, today.day - 1);
+      _updateDate(today);
     }
 
     _animationController = AnimationController(
@@ -86,6 +91,18 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     _oldNum = (await widget.getOldNumFn(newDate));
 
     _oldDoneController.text = (null == _oldNum) ? "无" : "$_oldNum";
+
+    if (null != _oldNum) {
+      _lastNewNum = _lastNewNum ?? 0;
+      _thisNewNum = _oldNum;
+    } else {
+      _lastNewNum = null;
+      _thisNewNum = null;
+//      _newDoneController.text = "";
+    }
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Widget _buildDateInputBox() {
@@ -136,7 +153,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
               locale: Locale("zh", "CN"),
             );
             if ((null != newDate) && (!isSameDay(newDate, _date))) {
-              _updateDate(newDate);
+              await _updateDate(newDate);
               setState(() {});
             }
           },
@@ -386,6 +403,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     final inputBox =
         _buildDoneInputBox("(新)数量：", _newDoneController, true, _onChanged);
     if ((null == _lastNewNum) || (_lastNewNum == _thisNewNum)) {
+      _newDoneController.text = (null != _thisNewNum) ? "$_thisNewNum" : "";
       return inputBox;
     }
     Animation animation =

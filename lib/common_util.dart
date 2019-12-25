@@ -305,23 +305,24 @@ Widget buildLoadingView({double topPadding, double height}) {
   final double _height = MediaQueryData.fromWindow(window).size.height;
   return Container(
 //      color: Colors.orange,
-      alignment: Alignment.topCenter,
-      height: height ?? (_height / 2),
-      child: Padding(
-          padding: EdgeInsets.only(top: topPadding ?? (_height / 5)),
+    alignment: Alignment.topCenter,
+    height: height ?? (_height / 2),
+    child: Padding(
+      padding: EdgeInsets.only(top: topPadding ?? (_height / 5)),
 //        children: [
 //          SizedBox(height: paddingHeight ?? (height / 5)),
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            overflow: Overflow.visible,
-            children: [
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        overflow: Overflow.visible,
+        children: [
 //              CircularProgressIndicator(),
-              ColorLoader2(),
-              ColorLoader3(radius: _width / 8, dotRadius: _width / 20),
-            ],
-          )
+          ColorLoader2(),
+          ColorLoader3(radius: _width / 8, dotRadius: _width / 20),
+        ],
+      ),
 //        ],
-          ));
+    ),
+  );
 }
 
 final RegExp _reDate = RegExp(

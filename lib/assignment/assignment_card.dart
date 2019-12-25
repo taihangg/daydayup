@@ -339,19 +339,25 @@ class _AssignmentCardState extends State<AssignmentCard>
   }
 
   Widget _buildTitle(String title) {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Container(
-          alignment: Alignment.center,
-          width: _bigBoxWidth,
-          height: _smallBoxHeight * 1.5,
-          child: FittedBox(
-              child: RichText(
-                  text: TextSpan(children: [
-            TextSpan(
-                text: title,
-                style: TextStyle(fontSize: _width / 11, color: Colors.orange))
-          ]))))
-    ]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+            alignment: Alignment.center,
+            width: _bigBoxWidth,
+            height: _smallBoxHeight * 1.5,
+            child: FittedBox(
+                child: RichText(
+                    text: TextSpan(
+              children: [
+                TextSpan(
+                    text: title,
+                    style:
+                        TextStyle(fontSize: _width / 11, color: Colors.orange)),
+              ],
+            )))),
+      ],
+    );
   }
 
   Widget _buildLineChart1(AssignmentData assignmentData) {

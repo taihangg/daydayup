@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'calendar/month_todo_page.dart';
 import 'my_navigation_bar.dart';
 import 'weather/weather_view.dart';
@@ -93,17 +95,20 @@ class _HomePageState extends State<_HomePage> {
 
     return DefaultTabController(
       length: _tabList.length,
-      child: Scaffold(
-        resizeToAvoidBottomPadding: false, //避免软键盘把widget顶上去
-        appBar: AppBar(
-          //leading: Text('Tabbed AppBar'),
-          //title: const Text('Tabbed AppBar'),
-          title: TabBar(isScrollable: false, tabs: _tabList),
+      child: WillPopScope(
+        child: Scaffold(
+          resizeToAvoidBottomPadding: false, //避免软键盘把widget顶上去
+          appBar: AppBar(
+            //leading: Text('Tabbed AppBar'),
+            //title: const Text('Tabbed AppBar'),
+            title: TabBar(isScrollable: false, tabs: _tabList),
 //      bottom: myTabBar,
-        ),
+          ),
 //      body: _tabBarViewChildren[_bottomBarSelectIndex],
-        body: TabBarView(children: _tabBarViewChildren),
+          body: TabBarView(children: _tabBarViewChildren),
 //      bottomNavigationBar: bottomNavigateBar,
+        ),
+        onWillPop: _onWillPop,
       ),
     );
   }
@@ -175,5 +180,28 @@ class _HomePageState extends State<_HomePage> {
     }
 
     return;
+  }
+
+  DateTime _lastPopTime;
+  Future<bool> _onWillPop() async {
+    // 点击返回键的操作
+    if (_lastPopTime == null ||
+        DateTime.now().difference(_lastPopTime) > Duration(seconds: 2)) {
+      _lastPopTime = DateTime.now();
+      Fluttertoast.showToast(
+        msg: "再按一次退出",
+//        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+//        timeInSecForIos: 1,
+//        backgroundColor: Colors.red,
+//        textColor: Colors.grey,
+        fontSize: _width / 12,
+      );
+      return false;
+    } else {
+      _lastPopTime = DateTime.now();
+      // 退出app
+      return await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 import 'city_data_manager.dart';
 
 class CityPicker extends StatefulWidget {
@@ -34,7 +35,7 @@ class _CityPickerState extends State<CityPicker> {
   }
 
   final TextEditingController _typeAheadController = TextEditingController();
-  CityItem _selectedItemData;
+  CityLevel _selectedItem;
 
   @override
   void initState() {
@@ -151,7 +152,7 @@ class _CityPickerState extends State<CityPicker> {
     return Stack(
       alignment: AlignmentDirectional.topEnd,
       children: [
-        TypeAheadFormField<CityItem>(
+        TypeAheadFormField<CityLevel>(
           keepSuggestionsOnSuggestionSelected: true,
           getImmediateSuggestions: true,
           textFieldConfiguration: TextFieldConfiguration(
@@ -165,18 +166,18 @@ class _CityPickerState extends State<CityPicker> {
             style: TextStyle(fontSize: _fontSize, color: Colors.orangeAccent),
             autofocus: (true == widget.autoFoucus),
             onChanged: (e) {
-              _selectedItemData = null;
+              _selectedItem = null;
               _foucused = true;
             },
           ),
           suggestionsCallback: (String pattern) {
             _foucused = true;
-            List<CityItem> items;
-            if (null == _selectedItemData) {
+            List<CityLevel> items;
+            if (null == _selectedItem) {
               items = CityDataMgr.findCities(pattern);
             } else {
-              if (_selectedItemData.city["id"].length < 6) {
-                items = CityDataMgr.getChildren(_selectedItemData);
+              if (_selectedItem.level < 3) {
+                items = CityDataMgr.getChildren(_selectedItem);
               } else {
 //                _typeAheadController.text = "";
 //                FocusScope.of(context)
@@ -184,21 +185,21 @@ class _CityPickerState extends State<CityPicker> {
 //                FocusScope.of(context).requestFocus(_focusNode);
 //                return null;
                 widget.onSelectedFn(
-                    _selectedItemData.fullName, _selectedItemData.city["code"]);
-                _selectedItemData = null;
+                    _selectedItem.fullName, _selectedItem.cityCode.toString());
+                _selectedItem = null;
               }
             }
 
             return items;
           },
-          itemBuilder: (context, CityItem itemData) {
+          itemBuilder: (context, CityLevel itemData) {
             return Card(
               child: Text(itemData.fullName,
                   style: TextStyle(fontSize: _fontSize, color: Colors.orange)),
             );
           },
-          onSuggestionSelected: (CityItem itemData) {
-            _selectedItemData = itemData;
+          onSuggestionSelected: (CityLevel itemData) {
+            _selectedItem = itemData;
             _typeAheadController.text = itemData.fullName;
           },
           noItemsFoundBuilder: (BuildContext context) {
@@ -221,16 +222,16 @@ class _CityPickerState extends State<CityPicker> {
               if ("" != _typeAheadController.text) {
                 _typeAheadController.text =
                     _trimLast(_typeAheadController.text);
-                _selectedItemData = null;
+                _selectedItem = null;
                 FocusScope.of(context)
                     .requestFocus(_focusNode); // 之前有可能隐藏了键盘，呼出键盘
               } else if (_foucused) {
-                assert(null == _selectedItemData);
+                assert(null == _selectedItem);
 //                _typeAheadController.text = " ";
                 _foucused = false;
                 FocusScope.of(context).requestFocus(FocusNode()); // 失焦，隐藏键盘
               } else {
-                assert(null == _selectedItemData);
+                assert(null == _selectedItem);
                 _foucused = true;
                 FocusScope.of(context).requestFocus(_focusNode); // 重新打开键盘
               }

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:gbk2utf8/gbk2utf8.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+
 import '../common_util.dart';
 import 'weather_data.dart';
 
@@ -56,7 +56,7 @@ class NetworkWeatherDataSojson {
       ..cityCode = "0001"
       ..body = "abc"
       ..timestamp = DateTime.now()
-      ..pm25 = 1.0
+//      ..pm25 = 1.0
       ..city = "c"
       ..highTemps = [1, 2, 3, 4, 5, 6, 7]
       ..lowTemps = [-1, -2, -3, -4, -5, -6, -7]
@@ -229,10 +229,10 @@ class NetworkWeatherDataSojson {
     weatherData.ok = true;
     weatherData.body = _body;
     weatherData.timestamp = _timestamp;
-    weatherData.shidu = _shidu;
-    weatherData.pm25 = _pm25;
-    weatherData.pm10 = _pm10;
-    weatherData.quality = _quality;
+//    weatherData.shidu = _shidu;
+//    weatherData.pm25 = _pm25;
+//    weatherData.pm10 = _pm10;
+//    weatherData.quality = _quality;
     weatherData.city = _city;
 
 //    final DateInt todayInt = DateInt(DateTime.now());

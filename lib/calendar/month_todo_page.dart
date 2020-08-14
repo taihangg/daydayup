@@ -1,11 +1,12 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import 'month_view.dart';
-import '../global_data.dart';
-import 'todo_view.dart';
 import 'package:rubber/rubber.dart';
+
+import '../global_data.dart';
+import 'month_view.dart';
+import 'todo_view.dart';
 
 class MonthTodoPage extends StatefulWidget {
   @override
@@ -102,7 +103,7 @@ class MonthTodoPageState extends State<MonthTodoPage>
       return [
         SliverOverlapAbsorber(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-          child: SliverAppBar(
+          sliver: SliverAppBar(
 //            floating: true,
 //            snap: true,
             pinned: true, // bottom内容是否保留不滑出屏幕

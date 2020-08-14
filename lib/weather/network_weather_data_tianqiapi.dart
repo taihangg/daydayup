@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:gbk2utf8/gbk2utf8.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+
 import '../common_util.dart';
 import 'weather_data.dart';
 
-class NetworkWeatherDataSojson {
+class NetworkWeatherData_tianqiapi {
   static DateTime _lastTs;
   static int _count = 0;
   static Future<WeatherData> getDataFromNetwork(
@@ -24,12 +24,16 @@ class NetworkWeatherDataSojson {
     _count = 0;
 
     String url;
-//    url = "http://t.weather.sojson.com/api/weather/city/101042600"; // 大足
-//    url = "http://t.weather.sojson.com/api/weather/city/101040700"; // 渝北
-//    url = "http://www.tianqi.com/dazu/30/";
-//    url = "https://www.tq321.com/chongqing/";
 
-    url = "http://t.weather.sojson.com/api/weather/city/$cityCode";
+//url ="https://www.tianqiapi.com/api?version=v3&appid=64332873&appsecret=E7ne3yOa&&cityid=101042600"
+//    url ="https://tianqiapi.com/api?version=v1&appid=64332873&appsecret=E7ne3yOa";
+//    url =
+//        "https://tianqiapi.com/api?version=v1&appid=64332873&appsecret=E7ne3yOa&&cityid=101042600"; // 大足
+
+    url =
+        "https://www.tianqiapi.com/api?version=v3&appid=64332873&appsecret=E7ne3yOa&&cityid=$cityCode"; // 40天
+//    url =
+//        "https://tianqiapi.com/api?version=v1&appid=64332873&appsecret=E7ne3yOa&&cityid=$cityCode"; // 7天
     print("从网络获取天气数据: $url");
 
     http.Response response;
@@ -41,8 +45,9 @@ class NetworkWeatherDataSojson {
       return null;
     }
 
-    print(response.body);
+//    print(response.body);
 //    String body = utf8.decode(response.bodyBytes);
+//    String body = gbk.decode(response.bodyBytes);
 
     return parse(fullCityName, cityCode, response.body);
   }
@@ -56,7 +61,7 @@ class NetworkWeatherDataSojson {
       ..cityCode = "0001"
       ..body = "abc"
       ..timestamp = DateTime.now()
-      ..pm25 = 1.0
+//      ..pm25 = 1.0
       ..city = "c"
       ..highTemps = [1, 2, 3, 4, 5, 6, 7]
       ..lowTemps = [-1, -2, -3, -4, -5, -6, -7]
@@ -78,17 +83,17 @@ class NetworkWeatherDataSojson {
 //  int _status;
 //  String _message;
   DateTime _timestamp;
-  String _shidu;
-  double _pm25;
-  double _pm10;
-  String _quality;
+//  String _shidu;
+//  double _pm25;
+//  double _pm10;
+//  String _quality;
 
   String _city;
   List<_WeatherDataDay> _days;
 
   static WeatherData parse(String fullCityName, String cityCode, String body) {
-    final sojsonWeatherData = NetworkWeatherDataSojson();
-    final msg = sojsonWeatherData._parse(body);
+    final weatherData_tianqiapi = NetworkWeatherData_tianqiapi();
+    final msg = weatherData_tianqiapi._parse(body);
     if ((null != msg) && ("" != msg)) {
       print(msg);
       final weatherData = WeatherData();
@@ -96,7 +101,7 @@ class NetworkWeatherDataSojson {
       return weatherData;
     }
 
-    final weatherData = sojsonWeatherData.convert2WeatherData();
+    final weatherData = weatherData_tianqiapi.convert2WeatherData();
     if (null != weatherData) {
       weatherData.fullCityName = fullCityName;
       weatherData.cityCode = cityCode;
@@ -115,93 +120,32 @@ class NetworkWeatherDataSojson {
       return "json decode error!";
     }
 
-    final status = json["status"];
-    if (200 != status) {
-      return json["message"];
-      return "status is not 200!";
-    }
-
-//    print(body);
-
     dynamic tmp;
 
-    tmp = json["date"]; // "20191115"
-    if ((null == tmp) || !(tmp is String)) {
-      return "parse date error!";
-    }
-    DateInt di;
-    try {
-      di = DateInt.fromInt(int.parse(tmp));
-    } catch (err) {
-      return "parse date error!";
-    }
-
-    tmp = json["cityInfo"];
-    if ((null == tmp) || !(tmp is Map<String, dynamic>)) {
-      return "parse cityInfo error!";
-    }
-    final Map cityInfo = tmp;
-    final String city = cityInfo["city"];
-    final String parentCity = cityInfo["parent"];
-
-    _city = "$parentCity $city";
-
-    tmp = cityInfo["updateTime"]; // "12:23"
+    // "2020-08-13 12:23:13"
+    tmp = json["update_time"];
     if ((null == tmp) || !(tmp is String)) {
       return "parse updateTime error!";
     }
-
-    // "20191115 12:23"
     try {
-      _timestamp = DateFormat("yyyy-MM-dd hh:mm")
-          .parse("${di.year}-${di.month}-${di.day} $tmp");
+      _timestamp = DateFormat("yyyy-MM-dd hh:mm:ss").parse(tmp);
     } catch (err) {
       return "parse updateTime error: $err";
     }
 
+    tmp = json["city"];
+    if ((null == tmp) || !(tmp is String)) {
+      return "parse city error!";
+    }
+    _city = tmp;
+
     tmp = json["data"];
-    if ((null == tmp) || !(tmp is Map<String, dynamic>)) {
+    if ((null == tmp) || !(tmp is List)) {
       return "parse data error!";
     }
-    final Map jsonData = tmp;
-
-    tmp = jsonData["pm25"];
-    if ((null == tmp) || !(tmp is double)) {
-      return "parse pm25 error!";
-    }
-    _pm25 = tmp;
-
-    tmp = jsonData["pm10"];
-    if ((null == tmp) || !(tmp is double)) {
-      return "parse pm10 error!";
-    }
-    _pm10 = tmp;
-
-    tmp = jsonData["quality"];
-    if ((null == tmp) || !(tmp is String)) {
-      return "parse quality error!";
-    }
-    _quality = tmp;
-
-    tmp = jsonData["shidu"];
-    if ((null == tmp) || !(tmp is String)) {
-      return "parse shidu error!";
-    }
-    _shidu = tmp;
-
     _days = [];
-    final _WeatherDataDay yesterday =
-        _WeatherDataDay.parse(jsonData["yesterday"]);
-    if (null != yesterday) {
-      _days.add(yesterday);
-    }
-
-    tmp = jsonData["forecast"];
-    if ((null == tmp) || !(tmp is List)) {
-      return "parse forecast error!";
-    }
-    final List jsonForecast = tmp;
-    for (final e in jsonForecast) {
+    final List daysData = tmp;
+    for (final e in daysData) {
       final _WeatherDataDay item = _WeatherDataDay.parse(e);
       if (null != item) {
         _days.add(item);
@@ -229,10 +173,10 @@ class NetworkWeatherDataSojson {
     weatherData.ok = true;
     weatherData.body = _body;
     weatherData.timestamp = _timestamp;
-    weatherData.shidu = _shidu;
-    weatherData.pm25 = _pm25;
-    weatherData.pm10 = _pm10;
-    weatherData.quality = _quality;
+//    weatherData.shidu = _shidu;
+//    weatherData.pm25 = _pm25;
+//    weatherData.pm10 = _pm10;
+//    weatherData.quality = _quality;
     weatherData.city = _city;
 
 //    final DateInt todayInt = DateInt(DateTime.now());
@@ -241,7 +185,12 @@ class NetworkWeatherDataSojson {
       weatherData.dates.add(d.date);
       weatherData.highTemps.add(d.high.toDouble());
       weatherData.lowTemps.add(d.low.toDouble());
-      weatherData.types.add(d.type);
+//      weatherData.types.add(d.weatherType);
+      weatherData.types.add("");
+
+//      if (7 < weatherData.dates.length) {
+//        break;
+//      }
     }
 
     return weatherData;
@@ -252,41 +201,39 @@ class _WeatherDataDay {
   final DateInt date;
   final int high;
   final int low;
-  final String type;
-  _WeatherDataDay(this.date, this.high, this.low, this.type);
+  final String weatherType;
+  _WeatherDataDay(this.date, this.high, this.low, this.weatherType);
 
   static _WeatherDataDay parse(dynamic json) {
     if ((null == json) || !(json is Map<String, dynamic>)) {
       return null;
     }
 
-    final int hightTemp = _parseTemp(json["high"]);
-    if (null == hightTemp) {
-      return null;
-    }
-
-    final int lowTemp = _parseTemp(json["low"]);
-    if (null == lowTemp) {
-      return null;
-    }
-
-    final dt = _parseDate(json["ymd"]);
+    final dt = _parseDate(json["date"]);
     if (null == dt) {
       return null;
     }
 
-    dynamic tmp = json["type"];
-    if ((null == tmp) || !(tmp is String)) {
+    final int hightTemp = _parseTemp(json["tem1"]);
+    if (null == hightTemp) {
       return null;
     }
 
-    final String type = tmp;
+    final int lowTemp = _parseTemp(json["tem2"]);
+    if (null == lowTemp) {
+      return null;
+    }
 
-    return _WeatherDataDay(dt, hightTemp, lowTemp, type);
+    final String weatherType = json["wea"];
+    if (null == lowTemp) {
+      return null;
+    }
+
+    return _WeatherDataDay(dt, hightTemp, lowTemp, weatherType);
   }
 
   // "高温 17℃", "低温 14℃",
-  static final RegExp _tempRE = RegExp(r'(高温|低温) (-?[\d]{1,2})℃');
+  static final RegExp _tempRE = RegExp(r'(-?[\d]{1,2})');
 //  static final RegExp _lowTempRE = RegExp(r'低温 (-?[\d]{1,2})℃');
   static int _parseTemp(dynamic tempStr) {
     if ((null == tempStr) || !(tempStr is String)) {
@@ -294,10 +241,10 @@ class _WeatherDataDay {
     }
 
     final match = _tempRE.firstMatch(tempStr);
-    if (2 != match.groupCount) {
+    if (1 != match.groupCount) {
       return null;
     }
-    final String highTempStr = match.group(2);
+    final String highTempStr = match.group(1);
     int hightTemp;
     try {
       hightTemp = int.parse(highTempStr);

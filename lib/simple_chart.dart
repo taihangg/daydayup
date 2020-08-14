@@ -1,9 +1,10 @@
-import 'dart:ui';
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'common_util.dart';
+import 'dart:ui';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+
+import 'common_util.dart';
 
 class SimpleLineChart extends StatefulWidget {
   final Key key;

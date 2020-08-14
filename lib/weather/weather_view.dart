@@ -1,17 +1,17 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:intl/intl.dart';
-import '../simple_chart.dart';
-import '../common_util.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../city_picker/city_data_manager.dart';
-import 'weather_data.dart';
 import '../city_picker/city_picker.dart';
-import 'get_city_by_ip.dart';
+import '../common_util.dart';
 import '../file_storage.dart';
-import 'network_weather_data_sojson.dart';
+import '../simple_chart.dart';
+import 'get_city_by_ip.dart';
+import 'network_weather_data_tianqiapi.dart';
+import 'weather_data.dart';
 
 class WeatherPage extends StatefulWidget {
   WeatherPage();
@@ -57,7 +57,7 @@ class _WeatherPageState extends State<WeatherPage> {
             _weatherSave = newSave;
             if (null != _weatherSave.body) {
               // 一定时间内，用旧数据
-              _weatherData = NetworkWeatherDataSojson.parse(
+              _weatherData = NetworkWeatherData_tianqiapi.parse(
                   _weatherSave.fullCityName,
                   _weatherSave.cityCode,
                   _weatherSave.body);
@@ -103,8 +103,9 @@ class _WeatherPageState extends State<WeatherPage> {
         (6 < DateTime.now().difference(_weatherSave.timestamp).inHours)) {
       assert(null != _weatherSave.cityCode);
 
-      final newWeatherData = await NetworkWeatherDataSojson.getDataFromNetwork(
-          _weatherSave.fullCityName, _weatherSave.cityCode);
+      final newWeatherData =
+          await NetworkWeatherData_tianqiapi.getDataFromNetwork(
+              _weatherSave.fullCityName, _weatherSave.cityCode);
 
       if (null != newWeatherData) {
         if (newWeatherData.ok) {
@@ -137,19 +138,19 @@ class _WeatherPageState extends State<WeatherPage> {
     }
     cityName = cityName.trimLeft();
 
-    List<CityItem> items = CityDataMgr.findMatchedCities(cityName);
+    List<CityLevel> items = CityDataMgr.findMatchedCities(cityName);
     if (items.isEmpty) {
       return null;
     }
 
     String cityCode;
     for (final item in items) {
-      if (6 == item.city["id"].length) {
-        final String thisCode = item.city["code"];
+      if (3 == item.level) {
+        final String thisCode = item.cityCode.toString();
         if (null == cityCode) {
           cityCode = thisCode;
         }
-        if (names.last == item.city["name"]) {
+        if (names.last == item.name) {
           cityCode = thisCode;
           break;
         }
@@ -219,8 +220,8 @@ class _WeatherPageState extends State<WeatherPage> {
   Widget _buildWeather() {
     final List<String> xTitles = _buildXTitles(_weatherData.dates);
     final List<String> indicators = ["白天气温", "夜间气温"];
-    indicators.add("pm2.5 ${_weatherData.pm25}");
-    indicators.add("湿度 ${_weatherData.shidu}");
+//    indicators.add("pm2.5 ${_weatherData.pm25}");
+//    indicators.add("湿度 ${_weatherData.shidu}");
     indicators.add(_fmt.format(_weatherData.timestamp));
 
     return Stack(
@@ -231,7 +232,7 @@ class _WeatherPageState extends State<WeatherPage> {
           child: Container(
             width: _height,
             child: SimpleLineChart(
-              title: _weatherData.city,
+              title: _weatherData.fullCityName,
               lines: [_weatherData.highTemps, _weatherData.lowTemps],
               lineColors: [Colors.orange, Colors.blueAccent],
               xTitles: xTitles,
@@ -241,8 +242,8 @@ class _WeatherPageState extends State<WeatherPage> {
                 Colors.orange,
                 Colors.blueAccent,
                 Colors.grey[600],
-                Colors.grey[600],
-                Colors.grey[600],
+//                Colors.grey[600],
+//                Colors.grey[600],
               ],
               showZeroPoint: true,
             ),

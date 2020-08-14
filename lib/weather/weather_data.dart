@@ -1,6 +1,5 @@
-import 'network_weather_data_sojson.dart';
-import 'network_weather_data_Ip138.dart';
 import 'package:intl/intl.dart';
+
 import '../common_util.dart';
 
 class WeatherData {
@@ -13,10 +12,10 @@ class WeatherData {
   String body;
 
   DateTime timestamp;
-  String shidu;
-  double pm25;
-  double pm10;
-  String quality;
+//  String shidu;
+//  double pm25;
+//  double pm10;
+//  String quality;
 
   String city;
   List<double> highTemps = [];

@@ -1,6 +1,7 @@
-import '../database_manager.dart';
-import '../common_util.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../common_util.dart';
+import '../database_manager.dart';
 
 class DailyData {
   int date;
@@ -1157,6 +1158,14 @@ primary key (${_columnDate}, ${_columnID})
     if ((null == oldDone) || (0 == oldDone)) {
       // 更新continuousDaysCount
       final todayInt = DateInt(today ?? DateTime.now());
+
+      // 可能跨日期了 // TODO
+      if (!lastUpdateDateInt.isSameDay(todayInt.prevousDay) &&
+          !lastUpdateDateInt.isSameDay(todayInt)) {
+        continuousDaysCount = 0;
+        continuousDaysCountUpdated = true;
+      }
+
       if (dateInt.isSameDay(todayInt)) {
         // 今天
         continuousDaysCount++;

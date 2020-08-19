@@ -1,16 +1,18 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'assignment_data.dart';
-import 'assignment_add_edit_page.dart';
+
+import '../common_util.dart';
 import '../simple_chart.dart';
+import 'assignment_add_edit_page.dart';
+import 'assignment_data.dart';
 import 'assignment_replenish_report.dart';
 import 'assignment_show_all_daily_data_view.dart';
-import '../common_util.dart';
 
 class AssignmentCard extends StatefulWidget {
   final AssignmentData data;
-  AssignmentCard(this.data);
+  final void Function() refresh;
+  AssignmentCard(this.data, {this.refresh});
 
   @override
   State<StatefulWidget> createState() {
@@ -312,7 +314,8 @@ class _AssignmentCardState extends State<AssignmentCard>
                     onDeleteFn: () async {
                       String msg = await assignmentData.remove();
                       if ((null == msg) || ("" == msg)) {
-                        setState(() {});
+//                        setState(() {});
+                        widget.refresh();
                       }
                       return msg;
                     },

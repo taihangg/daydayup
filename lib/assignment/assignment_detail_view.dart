@@ -1,12 +1,13 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'assignment_data.dart';
-import 'assignment_add_edit_page.dart';
-import 'assignment_import_export.dart';
-import 'assignment_card.dart';
 
 import '../common_util.dart';
+import 'assignment_add_edit_page.dart';
+import 'assignment_card.dart';
+import 'assignment_data.dart';
+import 'assignment_import_export.dart';
 
 class AssignmentDetailView extends StatefulWidget {
   @override
@@ -98,11 +99,15 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
 
     Widget child;
     if (testShowOne) {
-      child = AssignmentCard(_assignmentDataList.first);
+      child = AssignmentCard(_assignmentDataList.first, refresh: () {
+        setState(() {});
+      });
     } else {
       child = Column(
           children: _assignmentDataList.map((a) {
-        return AssignmentCard(a);
+        return AssignmentCard(a, refresh: () {
+          setState(() {});
+        });
       }).toList());
     }
     return Column(
@@ -124,14 +129,15 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
     return _buildButton1(
       "新增功课",
       Icons.add_circle_outline,
-      () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      () async {
+        await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
           return AssignmentAddEditPage.addNew(
               onCommitFn: (AssignmentData value) async {
             final msg = await value.apply();
             return msg;
           });
         }));
+        setState(() {}); // 返回后需要刷新一下
       },
     );
   }

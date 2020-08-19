@@ -988,6 +988,13 @@ primary key (${_columnDate}, ${_columnID})
       today = today ?? DateTime.now();
       DateInt todayInt = DateInt(today);
 
+      // 可能跨日期了 // TODO
+      if (!lastUpdateDateInt.isSameDay(todayInt.prevousDay) &&
+          !lastUpdateDateInt.isSameDay(todayInt)) {
+        continuousDaysCount = 0;
+        continuousDaysCountUpdated = true;
+      }
+
       // 当前没有天数计数，就不需要更新状态了
       // 所以，只处理当前正在计数的情况
       if (0 < continuousDaysCount) {

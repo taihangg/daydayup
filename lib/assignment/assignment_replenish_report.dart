@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:intl/intl.dart';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../common_util.dart';
 
 class ReplenishReportPage extends StatefulWidget {
@@ -62,9 +64,10 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         _thisNewNum = _oldNum;
       }
     } else {
-      final today = DateTime.now(); // 默认日期为今天
-//      final yesterday = DateTime(today.year, today.month, today.day - 1);
-      _updateDate(today);
+      // 默认日期为昨天
+      final today = DateTime.now();
+      final yesterday = DateTime(today.year, today.month, today.day - 1);
+      _updateDate(yesterday);
     }
 
     _animationController = AnimationController(

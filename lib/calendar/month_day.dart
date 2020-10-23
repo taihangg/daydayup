@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:marquee_flutter/marquee_flutter.dart';
 
@@ -70,7 +71,7 @@ class DayBox extends StatelessWidget {
           ? richText
           : Container(
               width: _width / 8,
-              height: _width / 8 / 3,
+              height: _width / 8 * 2 / 5,
               child: MarqueeWidget(
                 richText: richText,
                 scrollAxis: Axis.horizontal,

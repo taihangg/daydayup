@@ -797,10 +797,10 @@ primary key (${_columnDate}, ${_columnID})
     if (hasEndDate && hasTarget) {
       assert(null != endDate);
       assert(null != target);
-      if (target <= allSum) {
+      if (target <= periodSum) {
         return 0;
       } else {
-        return ((target - allSum) / leftDaysCount);
+        return ((target - periodSum) / leftDaysCount);
       }
     } else {
       return null;
@@ -1167,10 +1167,12 @@ primary key (${_columnDate}, ${_columnID})
       final todayInt = DateInt(today ?? DateTime.now());
 
       // 可能跨日期了 // TODO
-      if (!lastUpdateDateInt.isSameDay(todayInt.prevousDay) &&
-          !lastUpdateDateInt.isSameDay(todayInt)) {
-        continuousDaysCount = 0;
-        continuousDaysCountUpdated = true;
+      if (null != lastUpdateDateInt) {
+        if (!lastUpdateDateInt.isSameDay(todayInt.prevousDay) &&
+            !lastUpdateDateInt.isSameDay(todayInt)) {
+          continuousDaysCount = 0;
+          continuousDaysCountUpdated = true;
+        }
       }
 
       if (dateInt.isSameDay(todayInt)) {

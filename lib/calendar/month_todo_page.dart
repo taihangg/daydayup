@@ -20,18 +20,20 @@ class MonthTodoPageState extends State<MonthTodoPage>
   MonthTodoPageState() {
     _monthView = MonthView(
       onDateSelectedFn: (DateTime selectedDate) {
-        _todoView.setSelectedDate(selectedDate);
+        if (null != _todoView) {
+          _todoView.setSelectedDate(selectedDate);
+        }
       },
       onMonthChangeFn: (DateTime showMonth) {},
       initDate: null,
       noteIconTypeFn: _noteIconTypeFn,
     );
 
-    _todoView = TodoView(
-        width: _width,
-        onStatusChangeFn: () {
-          _monthView.Refresh();
-        });
+    // _todoView = TodoView(
+    //     width: _width,
+    //     onStatusChangeFn: () {
+    //       _monthView.Refresh();
+    //     });
   }
 
   final double _width = MediaQueryData.fromWindow(window).size.width;
@@ -69,7 +71,7 @@ class MonthTodoPageState extends State<MonthTodoPage>
 
     globalData.onLoadDataFinishedFn = () {
       _monthView.Refresh();
-      _todoView.Refresh();
+      _todoView?.Refresh();
     };
   }
 

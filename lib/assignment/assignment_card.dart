@@ -273,26 +273,17 @@ class _AssignmentCardState extends State<AssignmentCard>
   }
 
   Widget _buildButtonModifyPair(AssignmentData assignmentData) {
-    _onReplenishReportCommit(DateTime date, int oldNum, int newNum) async {
-      assert(null != newNum);
+    _onReplenishReportCommit_addNum(
+        DateTime date, int line1Num, int line2Num) async {
+      assert(null != line2Num);
 
-      if (null == oldNum) {
-        if (0 == newNum) {
-          return;
-        }
-        await assignmentData.addDailyDone(date, newNum);
-      } else {
-        if (oldNum == newNum) {
-          return;
-        }
-        if (oldNum < newNum) {
-          await assignmentData.addDailyDone(date, newNum - oldNum);
-        } else {
-          await assignmentData.reduceDailyDone(date, oldNum - newNum);
+      if (null != line2Num) {
+        if (0 != line2Num) {
+          await assignmentData.addDailyDone(date, line2Num);
+          setState(() {});
         }
       }
-
-      setState(() {});
+      return;
     }
 
     return Container(
@@ -323,15 +314,24 @@ class _AssignmentCardState extends State<AssignmentCard>
                 }));
               }),
           _buildButton2(
-              text: "补报/修改",
+              text: "补报",
               onPressed: () {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return ReplenishReportPage(
+                        pageTitle: "补报",
+                        initDate: DateInt(DateTime.now()).prevousDay,
+                        isDateChangeable: true,
+                        line1_title: "已完成：",
+                        line1_getNumOnDateChangeFn:
+                            assignmentData.getDailyDoneAsync,
+                        line2_title: "本次新增：",
+                        line2_getNumOnDateChangeFn: (DateTime date) async {
+                          return 0;
+                        },
                         step: assignmentData.step,
-                        getOldNumFn: assignmentData.getDailyDoneAsync,
-                        onCommitFn: _onReplenishReportCommit,
+                        onCommitFn: _onReplenishReportCommit_addNum,
                       );
                     });
                 return;

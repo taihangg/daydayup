@@ -171,11 +171,13 @@ class _AssignmentBarState extends State<AssignmentBar>
     super.dispose();
   }
 
+  List<int> _showNumList = [0, 0, 0];
   @override
   Widget build(BuildContext context) {
-    List<int> lastLineData = widget.a.lastLineData;
+//    List<int> lastLineData = widget.a.lastLineData;
+    int i = 0;
     final futureBuilder = FutureBuilder<List<int>>(
-      initialData: lastLineData,
+      initialData: _showNumList, //lastLineData,
       future: widget.a.getLatestLineData(3),
       builder: (BuildContext context, AsyncSnapshot<List<int>> snapshot) {
         if ((ConnectionState.done == snapshot.connectionState) &&
@@ -186,7 +188,8 @@ class _AssignmentBarState extends State<AssignmentBar>
             style: TextStyle(fontSize: _util.fontSize),
           ));
         }
-        return _buildDataRow(lastLineData, snapshot.data);
+
+        return _buildDataRow(snapshot.data);
       },
     );
 
@@ -199,9 +202,10 @@ class _AssignmentBarState extends State<AssignmentBar>
             child: FittedBox(child: futureBuilder)));
   }
 
-  Widget _buildDataRow(List<int> oldData, List<int> newData) {
-    assert(null != oldData);
+  Widget _buildDataRow(List<int> newData) {
+//    assert(null != showNumList);
     assert(null != newData);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -211,38 +215,39 @@ class _AssignmentBarState extends State<AssignmentBar>
           hasLeftBar: false,
           width: _util.defaultBoxWidth * 2,
         ),
-        _buildAnimatedNumBox(oldData[0], newData[0]),
-        _buildAnimatedNumBox(oldData[1], newData[1]),
-        _buildAnimatedNumBox(oldData[2], newData[2]),
+        _buildAnimatedNumBox(0, newData[0]),
+        _buildAnimatedNumBox(1, newData[1]),
+        _buildAnimatedNumBox(2, newData[2]),
         _buildReduceButtonBox(widget.a),
         _buildAddButtonBox(widget.a),
       ],
     );
   }
 
-  Widget _buildAnimatedNumBox(int oldNum, int newNum) {
-    assert(null != oldNum);
+  Widget _buildAnimatedNumBox(int showNumIndex, int newNum) {
     assert(null != newNum);
-    if (((newNum - oldNum).abs() <= 1)) {
+//    print("showNumList[$showNumIndex]=${_showNumList[showNumIndex]}");
+    if (_showNumList[showNumIndex] == newNum) {
       return _util.buildStringBox(
         numString(newNum, true),
-        textColor: (0 == newNum) ? Colors.red : null,
+        textColor: (0 == _showNumList[showNumIndex]) ? Colors.red : null,
       );
     } else {
       Animation animation =
-          IntTween(begin: oldNum, end: newNum).animate(CurvedAnimation(
+          IntTween(begin: _showNumList[showNumIndex], end: newNum)
+              .animate(CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeInOutExpo,
 //                curve: Curves.easeOutCirc,
       ));
-      _animationController.reset();
-      _animationController.forward();
 
       return AnimatedBuilder(
           animation: _animationController,
           builder: (BuildContext context, Widget child) {
+            _showNumList[showNumIndex] = animation.value;
             return _util.buildStringBox(numString(animation.value, true),
-                textColor: (0 == animation.value) ? Colors.red : null);
+                textColor:
+                    (0 == _showNumList[showNumIndex]) ? Colors.red : null);
           });
     }
   }
@@ -269,6 +274,8 @@ class _AssignmentBarState extends State<AssignmentBar>
       () async {
         bool b = await a.todayDoneReduceStep();
         if (b) {
+          _animationController.reset();
+          _animationController.forward();
           setState(() {});
         }
       },
@@ -282,6 +289,8 @@ class _AssignmentBarState extends State<AssignmentBar>
       "${a.step}",
       () async {
         await a.todayDoneAddStep();
+        _animationController.reset();
+        _animationController.forward();
         setState(() {});
       },
       Colors.amberAccent,

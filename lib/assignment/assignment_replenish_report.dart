@@ -7,22 +7,40 @@ import 'package:intl/intl.dart';
 import '../common_util.dart';
 
 class ReplenishReportPage extends StatefulWidget {
-  final int step;
-  final void Function(DateTime date, int oldNum, int newNum) onCommitFn;
-  Future<int> Function(DateTime date) getOldNumFn;
-  ReplenishReportPage({this.step, this.getOldNumFn, this.onCommitFn}) {
-    assert(null != step);
-    assert(null != getOldNumFn);
-    assert(null != onCommitFn);
-  }
+  final String pageTitle;
 
-  String dateStr;
-  int oldNum;
-  ReplenishReportPage.fromFixedDate(
-      {this.dateStr, this.step, this.oldNum, this.onCommitFn}) {
-    assert(null != dateStr);
+  final DateInt initDate;
+  final bool isDateChangeable;
+
+  final String line1_title;
+  final Future<int> Function(DateTime date) line1_getNumOnDateChangeFn;
+
+  final String line2_title;
+  final Future<int> Function(DateTime date) line2_getNumOnDateChangeFn;
+
+  final int step;
+
+  final void Function(DateTime date, int line1_newNum, int line2_newNum)
+      onCommitFn;
+
+  ReplenishReportPage({
+    @required this.pageTitle,
+    @required this.initDate,
+    @required this.isDateChangeable,
+    @required this.line1_title,
+    @required this.line1_getNumOnDateChangeFn,
+    @required this.line2_title,
+    @required this.line2_getNumOnDateChangeFn,
+    @required this.step,
+    @required this.onCommitFn,
+  }) {
+    assert(null != initDate);
+    assert(null != isDateChangeable);
+    assert(null != line1_title);
+    assert(null != line1_getNumOnDateChangeFn);
+    assert(null != line2_title);
+    assert(null != line2_getNumOnDateChangeFn);
     assert(null != step);
-    assert(null != oldNum);
     assert(null != onCommitFn);
   }
 
@@ -32,45 +50,53 @@ class ReplenishReportPage extends StatefulWidget {
   }
 }
 
+String _formatDate(int date) {
+  final dateInt = DateInt.fromInt(date);
+  return "${dateInt.year}-" +
+      ((dateInt.month < 10) ? "0" : "") +
+      "${dateInt.month}-" +
+      ((dateInt.day < 10) ? "0" : "") +
+      "${dateInt.day}";
+}
+
 class ReplenishReportPageState extends State<ReplenishReportPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+  DateTime _date;
   ReplenishReportPageState() {}
 
   final double _width = MediaQueryData.fromWindow(window).size.width;
   final double _height = MediaQueryData.fromWindow(window).size.height;
 
   final _fmt = DateFormat('yyyy-MM-dd');
-  DateTime _date;
-  int _oldNum = 0;
 
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _oldDoneController = TextEditingController();
-  TextEditingController _newDoneController = TextEditingController();
+  TextEditingController _date_controller = TextEditingController();
+  TextEditingController _line1_controller = TextEditingController();
+  TextEditingController _line2_controller = TextEditingController();
 
-  AnimationController _animationController;
+  AnimationController _line1_animationController;
+  Animation _line1_animation;
+
+  AnimationController _line2_animationController;
+  Animation _line2_animation;
+
+  int _line1_showNum = 0; // 当前显示的数值
+  int _line1_realNum = 0; // 实际值
+
+  int _line2_showNum = 0; // 当前显示的数值
+  int _line2_realNum = 0; // 实际值
 
   @override
   initState() {
     super.initState();
 
-    if (null != widget.dateStr) {
-      _date = _fmt.parse(widget.dateStr);
-      _dateController.text = widget.dateStr;
-      _oldNum = widget.oldNum;
-//      _oldDoneController.text = (null == _oldNum) ? "无" : "$_oldNum";
+    _date_controller.text = _formatDate(widget.initDate.data);
 
-      if (null != _oldNum) {
-        _lastNewNum = 0;
-        _thisNewNum = _oldNum;
-      }
-    } else {
-      // 默认日期为昨天
-      final today = DateTime.now();
-      final yesterday = DateTime(today.year, today.month, today.day - 1);
-      _updateDate(yesterday);
-    }
+    _updateDate(widget.initDate.dt); // 初始值
 
-    _animationController = AnimationController(
+    _line1_animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+
+    _line2_animationController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1000));
 //    _animation = IntTween(begin: _oldNum, end: _oldNum).animate(CurvedAnimation(
 //        parent: _animationController, curve: Curves.fastLinearToSlowEaseIn));
@@ -78,34 +104,150 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _dateController.dispose();
-    _oldDoneController.dispose();
-    _newDoneController.dispose();
+    _line1_animationController.dispose();
+    _line2_animationController.dispose();
+
+    _date_controller.dispose();
+    _line1_controller.dispose();
+    _line2_controller.dispose();
     super.dispose();
+  }
+
+  Animation _createAnimation(AnimationController controller, int from, int to) {
+    controller.reset();
+    controller.forward();
+    return IntTween(begin: from, end: to).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOutExpo,
+//      curve: Curves.easeOutCirc,
+    ));
   }
 
   _updateDate(DateTime newDate) async {
     _date = newDate;
 
     String dateStr = _fmt.format(newDate);
-    _dateController.text = dateStr;
+    _date_controller.text = dateStr;
 
-    _oldNum = (await widget.getOldNumFn(newDate));
-
-    _oldDoneController.text = (null == _oldNum) ? "无" : "$_oldNum";
-
-    if (null != _oldNum) {
-      _lastNewNum = _lastNewNum ?? 0;
-      _thisNewNum = _oldNum;
+    _line1_showNum = 0; // 每次都从0开始变化，不用从前次数据的值开始变化
+    _line1_realNum = await widget.line1_getNumOnDateChangeFn(newDate);
+    if (((null == _line1_realNum) || (0 == _line1_realNum))) {
+      _line1_animation = null;
     } else {
-      _lastNewNum = null;
-      _thisNewNum = null;
-//      _newDoneController.text = "";
+      _line1_animation = _createAnimation(
+          _line1_animationController, _line1_showNum, _line1_realNum);
     }
+
+    _line2_showNum = 0;
+    _line2_realNum = await widget.line2_getNumOnDateChangeFn(newDate);
+    if (((null == _line2_realNum) || (0 == _line2_realNum))) {
+      _line2_animation = null;
+    } else {
+      _line2_animation = _createAnimation(
+          _line2_animationController, _line2_showNum, _line2_realNum);
+    }
+
     if (mounted) {
       setState(() {});
     }
+    return;
+  }
+
+  Widget _buildLine2InputBox() {
+    final inputBox = _buildTextInputBox(
+        widget.line2_title, _line2_controller, true, _line2_onInputTextChanged);
+    if (null == _line2_animation) {
+      _line2_controller.text =
+          (null != _line2_realNum) ? "$_line2_realNum" : "";
+      return inputBox;
+    }
+
+//    _line2_animationController.reset();
+//    _line2_animationController.forward();
+
+    Animation animation = _line2_animation;
+    return AnimatedBuilder(
+      animation: _line2_animationController,
+      builder: (BuildContext context, Widget child) {
+        _line2_showNum = animation.value;
+        _line2_controller.text = animation.value.toString();
+        return inputBox;
+      },
+    );
+  }
+
+  _line2_onInputTextChanged(String value) {
+    _line2_animationController.stop();
+
+    if ("" == value) {
+      _line2_showNum = _line2_realNum = 0;
+    } else {
+      try {
+        // 检查用户是否有非法输入
+        int num = int.parse(value);
+        _line2_showNum = _line2_realNum = num;
+      } catch (err) {
+        _line2_animation = null;
+        _line2_showNum = _line2_realNum = null;
+      }
+    }
+
+    return;
+  }
+
+  void _line2_reduceStep() {
+    if (null == _line2_realNum) {
+      return;
+    }
+
+    if (widget.step < _line2_realNum) {
+      _line2_realNum -= widget.step;
+    } else {
+      _line2_realNum = 0;
+    }
+
+    _line2_animation = _createAnimation(
+        _line2_animationController, _line2_showNum, _line2_realNum);
+
+    setState(() {});
+
+    return;
+  }
+
+  void _line2_addStep() {
+    if (null == _line2_realNum) {
+      return;
+    }
+
+    _line2_realNum += widget.step;
+
+    _line2_animation = _createAnimation(
+        _line2_animationController, _line2_showNum, _line2_realNum);
+
+    setState(() {});
+
+    return;
+  }
+
+  Widget _buildLine1InputBox() {
+    final inputBox =
+        _buildTextInputBox(widget.line1_title, _line1_controller, false, null);
+    if (null == _line1_animation) {
+      _line1_controller.text =
+          (null != _line1_realNum) ? "$_line1_realNum" : "";
+      return inputBox;
+    }
+
+//    _line1_animationController.forward();
+    Animation animation = _line1_animation;
+    return AnimatedBuilder(
+      animation: _line1_animationController,
+      builder: (BuildContext context, Widget child) {
+        _line1_showNum = animation.value;
+        _line1_controller.text = animation.value.toString();
+        return inputBox;
+      },
+    );
   }
 
   Widget _buildDateInputBox() {
@@ -126,7 +268,9 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
                   "日期：",
                   style: TextStyle(
                       fontSize: _width / 20,
-                      color: (null != widget.dateStr) ? Colors.grey : null),
+                      color: widget.isDateChangeable
+                          ? Colors.black
+                          : Colors.grey[500]),
                 ))),
           ],
         ),
@@ -134,16 +278,19 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
           child: Container(
             width: _width * 55 / 100,
             height: _width * 12 / 100,
-            color:
-                (null == widget.dateStr) ? Colors.grey[200] : Colors.grey[50],
+            color: widget.isDateChangeable ? Colors.grey[200] : Colors.grey[50],
             alignment: Alignment.centerLeft,
             child: Text(
               _fmt.format(_date),
-              style: TextStyle(fontSize: _width / 20),
+              style: TextStyle(
+                  fontSize: _width / 20,
+                  color: widget.isDateChangeable
+                      ? Colors.black
+                      : Colors.grey[500]),
             ),
           ),
           onTap: () async {
-            if (null != widget.dateStr) {
+            if (true != widget.isDateChangeable) {
               return;
             }
 
@@ -157,7 +304,6 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
             );
             if ((null != newDate) && (!isSameDay(newDate, _date))) {
               await _updateDate(newDate);
-              setState(() {});
             }
           },
         ),
@@ -166,8 +312,8 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     ));
   }
 
-  Widget _buildDoneInputBox(String title, TextEditingController controller,
-      bool revisable, Function(String) onChanged) {
+  Widget _buildTextInputBox(String title, TextEditingController controller,
+      bool revisable, Function(String) onInputChanged) {
     return FittedBox(
         child: Row(children: [
       SizedBox(width: _width / 20),
@@ -206,7 +352,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
           controller: controller,
           autovalidate: true,
           validator: ValidateNumFn,
-          onChanged: onChanged,
+          onChanged: onInputChanged,
         ),
       ),
       SizedBox(width: _width / 20),
@@ -238,69 +384,10 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        _buildButton(Icons.remove, "${widget.step}", _reduceStep),
-        _buildButton(Icons.add, "${widget.step}", _addStep),
+        _buildButton(Icons.remove, "${widget.step}", _line2_reduceStep),
+        _buildButton(Icons.add, "${widget.step}", _line2_addStep),
       ],
     ));
-  }
-
-  void _reduceStep() {
-    if ((null != _newDoneController.text) && ("" != _newDoneController.text)) {
-      try {
-        int oldNum = int.parse(_newDoneController.text);
-      } catch (err) {
-        _lastNewNum = null;
-        //当前有非法输入值，就不做改变
-        return;
-      }
-    }
-
-    if ((null != _lastNewNum) && (0 != _lastNewNum)) {
-      // 非null 非0，值有变化
-      if (widget.step < _lastNewNum) {
-        _thisNewNum = _lastNewNum - widget.step;
-      } else {
-        _thisNewNum = 0;
-      }
-      if (1 == widget.step) {
-        //  step==1，不用动画，直接设置显示内容
-        _lastNewNum = _thisNewNum;
-        _newDoneController.text = "$_lastNewNum";
-      } else {
-        setState(() {});
-      }
-    } else {
-      if (null == _lastNewNum) {
-        _lastNewNum = 0;
-        _newDoneController.text = "0";
-      }
-      _thisNewNum = 0; //显示0
-    }
-  }
-
-  void _addStep() {
-    if ((null != _newDoneController.text) && ("" != _newDoneController.text)) {
-      try {
-        int num = int.parse(_newDoneController.text);
-      } catch (err) {
-        _lastNewNum = null;
-        //当前有非法输入值，就不做改变
-        return;
-      }
-    }
-
-    _lastNewNum = _lastNewNum ?? 0;
-    _thisNewNum = _lastNewNum + widget.step;
-
-    if (1 == widget.step) {
-      //  step==1，不用动画，直接设置显示内容
-      _lastNewNum = _thisNewNum;
-      _newDoneController.text = "$_lastNewNum";
-    } else {
-      setState(() {});
-    }
-
-//    setState(() {});
   }
 
   Widget _buildButtonLine(BuildContext context2) {
@@ -328,11 +415,11 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
               color: Colors.grey[200],
               child: Text("提交", style: TextStyle(fontSize: _width / 20)),
               onPressed: () async {
-                if (null == _thisNewNum) {
+                if (null == _line2_realNum) {
                   return;
                 }
 
-                widget.onCommitFn(_date, _oldNum, _thisNewNum);
+                widget.onCommitFn(_date, _line1_realNum, _line2_realNum);
                 Navigator.of(context2).pop();
               },
             ),
@@ -359,17 +446,17 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
 
     return SimpleDialog(
       title: Center(
-          child: Text("修改、补报",
+          child: Text(widget.pageTitle,
               style:
-                  TextStyle(color: Colors.deepOrange, fontSize: _width / 15))),
+                  TextStyle(color: Colors.deepOrange, fontSize: _width / 12))),
       children: [
         Divider(),
         SizedBox(height: _width / 40),
         _buildDateInputBox(),
         SizedBox(height: _width / 20),
-        _buildDoneInputBox("(旧)数量：", _oldDoneController, false, null),
+        _buildLine1InputBox(),
         SizedBox(height: _width / 100),
-        _buildNewDoneInputBox(),
+        _buildLine2InputBox(),
         SizedBox(height: _width / 100),
         _buildStepButtonLine(),
         SizedBox(height: _width / 20),
@@ -392,50 +479,13 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
 //    );
   }
 
-  _onChanged(String value) {
-    int newNum;
-    try {
-      newNum = int.parse(value);
-    } catch (err) {}
-    _lastNewNum = _thisNewNum = newNum;
-  }
-
-  int _lastNewNum;
-  int _thisNewNum;
-  Widget _buildNewDoneInputBox() {
-    final inputBox =
-        _buildDoneInputBox("(新)数量：", _newDoneController, true, _onChanged);
-    if ((null == _lastNewNum) || (_lastNewNum == _thisNewNum)) {
-      _newDoneController.text = (null != _thisNewNum) ? "$_thisNewNum" : "";
-      return inputBox;
-    }
-    Animation animation =
-        IntTween(begin: _lastNewNum, end: _thisNewNum).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOutExpo,
-//      curve: Curves.easeOutCirc,
-    ));
-    _animationController.reset();
-    _animationController.forward();
-
-    _lastNewNum = _thisNewNum;
-
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (BuildContext context, Widget child) {
-        _newDoneController.text = animation.value.toString();
-        return inputBox;
-      },
-    );
-  }
-
   void onNewDoneTextFieldChanged(String value) {
     print("xxx onNewDoneTextFieldChanged");
     try {
 //      连续点+或者-时，因为旧值是从controller.text中解析出来的，会可能在动画完成前就开始解析值了，最终结果会是错误值
-      _lastNewNum = int.parse(value);
+      _line2_showNum = int.parse(value);
     } catch (err) {
-      _lastNewNum = null;
+      _line2_showNum = null;
     }
   }
 }

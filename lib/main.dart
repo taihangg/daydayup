@@ -193,7 +193,7 @@ class _HomePageState extends State<_HomePage> {
 //        toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
 //        timeInSecForIos: 1,
-//        backgroundColor: Colors.red,
+        backgroundColor: Colors.grey,
 //        textColor: Colors.grey,
         fontSize: _width / 12,
       );

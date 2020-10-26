@@ -189,24 +189,7 @@ class ImportExportState extends State<ImportExport> {
                       onPressed: () async {
                         final msg = await _export(_dir.path + "/" + _fileName);
                         if ((null == msg) || ("" == msg)) {
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text("导出成功",
-                                      style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: _width / 10))
-                                ]),
-                            duration: Duration(seconds: 5),
-                            backgroundColor: Colors.tealAccent,
-//    action: SnackBarAction(
-//      label: "button",
-//      onPressed: () {
-//        print("in press");
-//      },
-//    ),
-                          ));
+                          showMsg(context, "导出成功！");
                         }
                       },
                     ),

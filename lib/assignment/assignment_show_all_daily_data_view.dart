@@ -1,7 +1,9 @@
 import 'dart:ui';
-import '../common_util.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../common_util.dart';
 import 'assignment_data.dart';
 import 'assignment_replenish_report.dart';
 
@@ -64,22 +66,24 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
     setState(() {});
   }
 
-  _onReplenishReportCommit(DateTime date, int oldNum, int newNum) async {
-    assert(null != oldNum);
-    assert(null != newNum);
+  void _onReplenishReportCommit_setNum(
+      DateTime date, int line1Num, int line2Num) async {
+    assert(null != line1Num);
+    assert(null != line2Num);
 
-    if (oldNum == newNum) {
+    if (line1Num == line2Num) {
       return;
     }
 
-    _updateDailyData(date, newNum);
+    _updateDailyData(date, line2Num);
 
-    if (oldNum < newNum) {
-      await widget.assignmentData.addDailyDone(date, newNum - oldNum);
+    if (line1Num < line2Num) {
+      await widget.assignmentData.addDailyDone(date, line2Num - line1Num);
     } else {
-      await widget.assignmentData.reduceDailyDone(date, oldNum - newNum);
+      await widget.assignmentData.reduceDailyDone(date, line1Num - line2Num);
     }
     setState(() {});
+    return;
   }
 
   void _updateDailyData(DateTime date, int newNum) {
@@ -173,7 +177,7 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
 
   Widget _buildDataRow(
       {String sequenceStr,
-      String dateStr,
+      int date,
       Color dateColor,
       int num,
       Color numColor}) {
@@ -206,7 +210,7 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
                   height: _rowHeight,
                   alignment: Alignment.center,
                   child: FittedBox(
-                      child: Text(dateStr,
+                      child: Text(_formatDate(date),
                           style: TextStyle(
                               fontSize: _fontSize,
                               color: dateColor ?? Colors.grey[600])))),
@@ -239,11 +243,26 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
                     await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return ReplenishReportPage.fromFixedDate(
-                            dateStr: dateStr,
+                          // return ReplenishReportPage.fromFixedDate(
+                          //   dateStr: date,
+                          //   step: widget.assignmentData.step,
+                          //   oldNum: num,
+                          //   onCommitFn: _onReplenishReportCommit,
+                          // );
+                          return ReplenishReportPage(
+                            pageTitle: "修改数量",
+                            initDate: DateInt.fromInt(date),
+                            isDateChangeable: false,
+                            line1_title: "(旧)数量：",
+                            line1_getNumOnDateChangeFn: (DateTime date) async {
+                              return num; // 因为日期固定不变，所以只需要返回固定值；
+                            },
+                            line2_title: "(新)数量：",
+                            line2_getNumOnDateChangeFn: (DateTime date) async {
+                              return num; // 因为日期固定不变，所以只需要返回固定值；
+                            },
                             step: widget.assignmentData.step,
-                            oldNum: num,
-                            onCommitFn: _onReplenishReportCommit,
+                            onCommitFn: _onReplenishReportCommit_setNum,
                           );
                         });
                     setState(() {});
@@ -297,7 +316,7 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
           if (null != dailyData) {
             return _buildDataRow(
                 sequenceStr: "${index + 1}:",
-                dateStr: _formatDate(dailyData.date),
+                date: dailyData.date,
                 num: dailyData.done);
           }
 

@@ -465,7 +465,9 @@ class MonthViewState extends State<MonthView> {
               return MonthView._userDefinedFestivalMgr.text;
             },
             onSaveFn: (String newText) {
-              return MonthView._userDefinedFestivalMgr.setText(newText);
+              String log = MonthView._userDefinedFestivalMgr.setText(newText);
+              setState(() {}); // 更新自定义节日后刷新一下，否则更新的内容不能立即看到。
+              return log;
             },
           ),
           Container(

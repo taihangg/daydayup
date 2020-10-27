@@ -23,7 +23,7 @@ class MonthViewActionBar extends StatelessWidget {
     _allWidth = width * 8 / 9;
     _boxHeight = _allWidth / 10;
     _fontSize = _allWidth / 5;
-    _actionBoxWidth = _allWidth / 4 * 8 / 10;
+    _actionBoxWidth = _allWidth / 4;
   }
 
   double _allWidth;
@@ -76,7 +76,7 @@ class MonthViewActionBar extends StatelessWidget {
     return FittedBox(
       child: Container(
         width: _allWidth,
-        height: _boxHeight * 2,
+        height: _boxHeight * 2.5,
         margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
         padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
         decoration: BoxDecoration(
@@ -84,27 +84,29 @@ class MonthViewActionBar extends StatelessWidget {
           border: Border.all(width: 0.5, color: Colors.black38),
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
         ),
-        // child: FittedBox(
-        //     fit: BoxFit.contain,
-        child: Column(
-          children: [
-            FittedBox(
-                child: Container(
-                    height: _boxHeight,
-                    // decoration: decoration,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: actionLineChildren))),
-            FittedBox(
-                child: Container(
-                    // decoration: decoration,
-                    height: _boxHeight,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: titleLineChildren))),
-          ],
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Column(
+            children: [
+              SizedBox(height: _allWidth / 100),
+              Container(
+                // height: _boxHeight,
+                // decoration: decoration,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: actionLineChildren),
+              ),
+              SizedBox(height: _allWidth / 100),
+              Container(
+                  // height: _boxHeight * 1.5,
+                  // decoration: decoration,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: titleLineChildren)),
+              SizedBox(height: _allWidth / 100),
+            ],
+          ),
         ),
-        // ),
       ),
     );
   }
@@ -166,8 +168,8 @@ class MonthViewActionBar extends StatelessWidget {
       children.add(Container(child: Icon(icon)));
     }
     return Container(
-      width: _allWidth / 4,
-      height: _actionBoxWidth,
+      width: _actionBoxWidth,
+      height: _boxHeight,
       child: FittedBox(
         child: RaisedButton(
           color: color,
@@ -191,8 +193,8 @@ class MonthViewActionBar extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: _boxHeight,
-        height: _boxHeight,
+        width: _boxHeight * 1.5,
+        height: _boxHeight * 1.5,
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border.all(width: 2.0, color: Colors.black38),

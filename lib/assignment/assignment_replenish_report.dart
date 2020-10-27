@@ -113,6 +113,114 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+//    final children = [
+//      SizedBox(height: _width / 5),
+//      _buildDateInputBox(),
+//      SizedBox(height: _width / 20),
+////      _buildOldDoneInputBox(),
+//      SizedBox(height: _width / 20),
+////      _buildNewDoneInputBox(),
+//      SizedBox(height: _width / 20),
+//      Divider(),
+//      SizedBox(height: _width / 20),
+//      _buildButtonLine(context)
+//    ];
+
+    return SimpleDialog(
+      title: Center(
+          child: Text(widget.pageTitle,
+              style:
+                  TextStyle(color: Colors.deepOrange, fontSize: _width / 12))),
+      children: [
+        Divider(),
+        SizedBox(height: _width / 40),
+        _buildDateInputBox(),
+        SizedBox(height: _width / 40),
+        _buildDateShotcutButtonLine(),
+        SizedBox(height: _width / 40),
+        _buildLine1InputBox(),
+        SizedBox(height: _width / 100),
+        _buildLine2InputBox(),
+        SizedBox(height: _width / 100),
+        _buildStepButtonLine(),
+        SizedBox(height: _width / 20),
+        Divider(),
+        _buildButtonLine(context),
+      ],
+    );
+//    return Scrollbar(
+//      child: SingleChildScrollView(
+//        child: Column(
+//          mainAxisAlignment: MainAxisAlignment.start,
+//          children: children,
+//        ),
+//      ),
+//    );
+
+//    return Scaffold(
+//      appBar: AppBar(title: Text("修改与补报")),
+//      body: Builder(builder: (BuildContext context2) {}),
+//    );
+  }
+
+  Widget _buildDateShotcutButton(
+    Color backgroundColor,
+    String text,
+    Color textColor,
+    GestureTapCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: _width / 10,
+        height: _width / 10,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: Border.all(width: 2.0, color: Colors.black38),
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+        child: FittedBox(
+          child: Text(text,
+              style: TextStyle(color: textColor, fontSize: _width / 10)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateShotcutButtonLine() {
+    // 快速跳转到 今天 和 昨天 的快捷按钮
+
+    final today = DateTime.now();
+    final yesterday = DateInt(today).prevousDay.dt;
+    return Container(
+        child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        SizedBox(width: _width / 4),
+        _buildDateShotcutButton(
+            isSameDay(yesterday, _date)
+                ? Colors.yellowAccent
+                : Colors.grey[350],
+            "昨天",
+            isSameDay(yesterday, _date) ? Colors.red : Colors.indigoAccent, () {
+          _updateDate(DateInt(DateTime.now()).prevousDay.dt);
+          return;
+        }),
+        SizedBox(width: _width / 20),
+        _buildDateShotcutButton(
+            isSameDay(today, _date) ? Colors.yellowAccent : Colors.grey[350],
+            "今天",
+            isSameDay(today, _date) ? Colors.red : Colors.indigoAccent, () {
+          _updateDate(DateTime.now());
+          return;
+        }),
+        SizedBox(width: _width / 20),
+      ],
+    ));
+  }
+
   Animation _createAnimation(AnimationController controller, int from, int to) {
     controller.reset();
     controller.forward();
@@ -124,6 +232,10 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
   }
 
   _updateDate(DateTime newDate) async {
+    if (_date == newDate) {
+      return;
+    }
+
     _date = newDate;
 
     String dateStr = _fmt.format(newDate);
@@ -234,7 +346,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         _buildTextInputBox(widget.line1_title, _line1_controller, false, null);
     if (null == _line1_animation) {
       _line1_controller.text =
-          (null != _line1_realNum) ? "$_line1_realNum" : "";
+          (null != _line1_realNum) ? "$_line1_realNum" : "无";
       return inputBox;
     }
 
@@ -427,56 +539,6 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         ),
       ],
     ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-//    final children = [
-//      SizedBox(height: _width / 5),
-//      _buildDateInputBox(),
-//      SizedBox(height: _width / 20),
-////      _buildOldDoneInputBox(),
-//      SizedBox(height: _width / 20),
-////      _buildNewDoneInputBox(),
-//      SizedBox(height: _width / 20),
-//      Divider(),
-//      SizedBox(height: _width / 20),
-//      _buildButtonLine(context)
-//    ];
-
-    return SimpleDialog(
-      title: Center(
-          child: Text(widget.pageTitle,
-              style:
-                  TextStyle(color: Colors.deepOrange, fontSize: _width / 12))),
-      children: [
-        Divider(),
-        SizedBox(height: _width / 40),
-        _buildDateInputBox(),
-        SizedBox(height: _width / 20),
-        _buildLine1InputBox(),
-        SizedBox(height: _width / 100),
-        _buildLine2InputBox(),
-        SizedBox(height: _width / 100),
-        _buildStepButtonLine(),
-        SizedBox(height: _width / 20),
-        Divider(),
-        _buildButtonLine(context),
-      ],
-    );
-//    return Scrollbar(
-//      child: SingleChildScrollView(
-//        child: Column(
-//          mainAxisAlignment: MainAxisAlignment.start,
-//          children: children,
-//        ),
-//      ),
-//    );
-
-//    return Scaffold(
-//      appBar: AppBar(title: Text("修改与补报")),
-//      body: Builder(builder: (BuildContext context2) {}),
-//    );
   }
 
   void onNewDoneTextFieldChanged(String value) {

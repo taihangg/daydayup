@@ -109,6 +109,8 @@ class CityDataMgr {
       return items;
     }
 
+    _init();
+
     // 每一部分都被包含，并且最后一级至少包含一个
 
     for (final CityLevel L1 in _cityMap.values) {

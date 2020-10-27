@@ -13,7 +13,7 @@ class SimpleLineChart extends StatefulWidget {
   final List<List<double>> lines;
   final List<Color> lineColors;
   final List<String> xTitles;
-  final List<String> topTitles;
+  List<String> topTitles;
   final double areaLine;
 
   final List<String> indicators;
@@ -63,6 +63,16 @@ class SimpleLineChart extends StatefulWidget {
     }
     _getMaxMinY();
     _calcParameters();
+
+    // 把 topTitles 都转成竖行的
+    if (null != topTitles){
+    topTitles = topTitles.map((element) {
+      // var b = element.split("").join("\n");
+      var b = element.split("").last;
+      return b;
+    }).toList();
+    }
+    return;
   }
 
   @override
@@ -617,6 +627,7 @@ class SimpleLineChartState extends State<SimpleLineChart> {
   }
 
   String _topTitle(value) {
+    // return "";
     return widget.topTitles[value.toInt()];
   }
 

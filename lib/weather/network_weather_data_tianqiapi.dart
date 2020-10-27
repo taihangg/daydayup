@@ -185,8 +185,8 @@ class NetworkWeatherData_tianqiapi {
       weatherData.dates.add(d.date);
       weatherData.highTemps.add(d.high.toDouble());
       weatherData.lowTemps.add(d.low.toDouble());
-//      weatherData.types.add(d.weatherType);
-      weatherData.types.add("");
+      weatherData.types.add(d.weatherType);
+      // weatherData.types.add("");
 
 //      if (7 < weatherData.dates.length) {
 //        break;

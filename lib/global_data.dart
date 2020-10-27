@@ -17,10 +17,17 @@ class _GlobalData {
   Map<String, TaskEntry> dateTaskDataMap = {};
 
   ////////////// 文件存储 //////////////
-  RawFile cfgFile = RawFile(fileName: "todo.json");
+  RawFile cfgFile;
 
   loadTaskData() async {
-    var jsonStr = await cfgFile.getString();
+    if (null == cfgFile) {
+      try {
+        cfgFile = RawFile(fileName: "todo.json");
+      } catch (e) {
+        assert(false);
+      }
+    }
+    String jsonStr = await cfgFile.getString();
 
     if (null == jsonStr) {
       return null;

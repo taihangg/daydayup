@@ -241,7 +241,7 @@ class NetworkWeatherDataSojson {
       weatherData.dates.add(d.date);
       weatherData.highTemps.add(d.high.toDouble());
       weatherData.lowTemps.add(d.low.toDouble());
-      weatherData.types.add(d.type);
+      weatherData.types.add(d.weatherType);
     }
 
     return weatherData;
@@ -252,8 +252,8 @@ class _WeatherDataDay {
   final DateInt date;
   final int high;
   final int low;
-  final String type;
-  _WeatherDataDay(this.date, this.high, this.low, this.type);
+  final String weatherType;
+  _WeatherDataDay(this.date, this.high, this.low, this.weatherType);
 
   static _WeatherDataDay parse(dynamic json) {
     if ((null == json) || !(json is Map<String, dynamic>)) {

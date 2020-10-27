@@ -23,16 +23,159 @@ class MonthViewActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var lineTitle = <Widget>[];
+//    lineTitle.add(
+//      SizedBox(width: screenWidth / 50),
+//    );
 
-    lineTitle.add(Container(
-      width: width * 7 / 10,
+    // final double fontSize = width / 15;
+    List<Widget> actionLineChildren = <Widget>[
+      _buildActionLineButton(
+          Color(0xFFFFD700), Icons.arrow_back_ios, "上一年", true, _toPrevYearFn),
+      SizedBox(width: width / 100),
+      _buildActionLineButton(Color(0xFFFFD700), Icons.arrow_forward_ios, "下一年",
+          false, _toNextYearFn),
+      SizedBox(width: width / 40),
+      _buildActionLineButton(
+          Color(0xFFFFB90F), Icons.arrow_back_ios, "上一月", true, _toPrevMonthFn),
+      SizedBox(width: width / 100),
+      _buildActionLineButton(Color(0xFFFFB90F), Icons.arrow_forward_ios, "下一月",
+          false, _toNextMonthFn),
+    ];
+
+    _manageFestival() {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        return UserDefinedFestirvalEditor(getFestivalText(), onSaveFn);
+      }));
+      return;
+    }
+
+    List<Widget> titleLineChildren = <Widget>[
+      _buildTitleLineButton1(
+          null, "节日\n管理", Colors.indigoAccent, _manageFestival),
+      SizedBox(width: width / 50),
+      _buildTitleLineDateButton(context),
+      SizedBox(width: width / 50),
+      _buildTitleLineButton1(Colors.yellowAccent, "返回\n今日", Colors.red, () {
+        onDateChangeFn(DateTime.now());
+        return;
+      }),
+    ];
+
+    return FittedBox(
+      child: Container(
+        width: width * 8 / 9,
+        margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        decoration: BoxDecoration(
+          //color: Colors.redAccent,
+          border: Border.all(width: 0.5, color: Colors.black38),
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: FittedBox(
+            child: Column(
+          children: [
+            Container(
+                height: width / 5,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: actionLineChildren)),
+            Container(
+                height: width / 5,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: titleLineChildren)),
+          ],
+        )),
+      ),
+    );
+  }
+
+  _toPrevYearFn() {
+    final lastMonth = DateTime(showMonth.year - 1, showMonth.month, 1);
+    onDateChangeFn(lastMonth);
+    return;
+  }
+
+  _toNextYearFn() {
+    final nextMonth = DateTime(showMonth.year + 1, showMonth.month, 1);
+    onDateChangeFn(nextMonth);
+    return;
+  }
+
+  _toPrevMonthFn() {
+    var lastMonth =
+        DateTime(showMonth.year, showMonth.month - 1, showMonth.day);
+    if (lastMonth.day != showMonth.day) {
+      lastMonth = DateTime(showMonth.year, showMonth.month, 0);
+    }
+
+    onDateChangeFn(lastMonth);
+    return;
+  }
+
+  _toNextMonthFn() {
+    var nextMonth =
+        DateTime(showMonth.year, showMonth.month + 1, showMonth.day);
+    if (nextMonth.day != showMonth.day) {
+      nextMonth = DateTime(showMonth.year, showMonth.month + 2, 0);
+    }
+    onDateChangeFn(nextMonth);
+    return;
+  }
+
+  Widget _buildActionLineButton(Color color, IconData icon, String title,
+      bool iconAtHead, VoidCallback onPressed) {
+    List<Widget> children = [
+      Text(title, style: TextStyle(fontSize: width / 10))
+    ];
+    if (iconAtHead) {
+      children.insert(0, Container(child: Icon(icon)));
+    } else {
+      children.add(Container(child: Icon(icon)));
+    }
+    return Container(
+      child: RaisedButton(
+        color: color,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: children,
+        ),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Widget _buildTitleLineButton1(Color backgroundColor, String text,
+      Color textColor, GestureTapCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width * 2 / 10,
+        height: width * 2 / 10,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: Border.all(width: 2.0, color: Colors.black38),
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+        child: FittedBox(
+          child: Text(text,
+              style: TextStyle(color: textColor, fontSize: width / 10)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleLineDateButton(BuildContext context) {
+    return Container(
+      width: width * 10 / 10,
+      height: width * 2 / 10,
       //alignment: Alignment.center,
       //padding: EdgeInsets.fromLTRB(screenWidth / 100, 0, screenWidth / 100, 0),
 //      color: Colors.lightBlueAccent,
       child: FittedBox(
         child: FlatButton(
-          color: Color(0xFFFFD700),
+          color: Colors.orange[200], //Color(0xFFFFD700),
 //          color: Colors.red,
           child: Text(
             "${showMonth.year}年" +
@@ -40,7 +183,7 @@ class MonthViewActionBar extends StatelessWidget {
                 "${showMonth.month}月" +
                 ((showMonth.day < 10) ? " " : "") +
                 "${showMonth.day}日",
-            style: TextStyle(fontSize: width / 15, color: Colors.black),
+            style: TextStyle(fontSize: width / 10, color: Colors.black),
           ),
           onPressed: () async {
 //          var pickDate = await showDatePicker(
@@ -60,12 +203,6 @@ class MonthViewActionBar extends StatelessWidget {
               //通过showDialog方法展示alert弹框
               context: context,
               builder: (context) {
-//  如果不能显示中文，就需要修改文件
-//  D:\bin\android\flutter\packages\flutter\lib\src\cupertino\date_picker.dart
-// 中的_CupertinoDatePickerDateTimeState类的build函数，在switch之前，增加
-// localizations.datePickerDateOrder=DatePickerDateOrder.ymd
-// 并修改_buildMonthPicker中对月份的字符串化
-
                 return Container(
 //                width: screenWidth,
                   height: 300,
@@ -86,170 +223,6 @@ class MonthViewActionBar extends StatelessWidget {
             );
           },
         ),
-      ),
-    ));
-
-//    lineTitle.add(
-//      SizedBox(width: screenWidth / 50),
-//    );
-
-    lineTitle.add(
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return UserDefinedFestirvalEditor(getFestivalText(), onSaveFn);
-              }));
-            },
-            child: Container(
-              width: width / 6,
-              height: width / 6,
-              decoration: BoxDecoration(
-//                color: Colors.yellowAccent,
-                border: Border.all(width: 2.0, color: Colors.black38),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              ),
-              child: FittedBox(
-                child: Text("节日\n管理",
-                    style: TextStyle(
-                        color: Colors.indigoAccent, fontSize: width / 15)),
-              ),
-            ),
-          ),
-          SizedBox(width: width * 4 / 5),
-          GestureDetector(
-            onTap: () {
-              onDateChangeFn(DateTime.now());
-            },
-            child: Container(
-              width: width / 6,
-              height: width / 6,
-              decoration: BoxDecoration(
-                color: Colors.yellowAccent,
-                border: Border.all(width: 2.0, color: Colors.black38),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              ),
-              child: FittedBox(
-                child: Text("返回\n今日",
-                    style: TextStyle(color: Colors.red, fontSize: width / 15)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    var lineAction = <Widget>[];
-    lineAction.add(
-      Container(
-        child: RaisedButton(
-          color: Color(0xFFFFD700),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(child: Icon(Icons.arrow_back_ios)),
-              Text("上一年", style: TextStyle(fontSize: width / 25)),
-            ],
-          ),
-          onPressed: () {
-            final lastMonth = DateTime(showMonth.year - 1, showMonth.month, 1);
-            onDateChangeFn(lastMonth);
-          },
-        ),
-      ),
-    );
-    lineAction.add(SizedBox(width: width / 500));
-    lineAction.add(
-      Container(
-        child: RaisedButton(
-          color: Color(0xFFFFD700),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text("下一年", style: TextStyle(fontSize: width / 25)),
-            Icon(Icons.arrow_forward_ios),
-          ]),
-          onPressed: () {
-            final nextMonth = DateTime(showMonth.year + 1, showMonth.month, 1);
-            onDateChangeFn(nextMonth);
-          },
-        ),
-      ),
-    );
-
-    lineAction.add(SizedBox(width: width / 50));
-    lineAction.add(
-      Container(
-        //color: Colors.orange,
-        child: RaisedButton(
-          color: Color(0xFFFFB90F),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(child: Icon(Icons.arrow_back_ios)),
-              Text("上一月", style: TextStyle(fontSize: width / 25)),
-            ],
-          ),
-          onPressed: () {
-            var lastMonth =
-                DateTime(showMonth.year, showMonth.month - 1, showMonth.day);
-            if (lastMonth.day != showMonth.day) {
-              lastMonth = DateTime(showMonth.year, showMonth.month, 0);
-            }
-
-            onDateChangeFn(lastMonth);
-          },
-        ),
-      ),
-    );
-    lineAction.add(SizedBox(width: width / 500));
-    lineAction.add(
-      Container(
-//        color: Colors.orange,
-        child: RaisedButton(
-          color: Color(0xFFFFB90F),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text("下一月", style: TextStyle(fontSize: width / 25)),
-            Icon(Icons.arrow_forward_ios),
-          ]),
-          onPressed: () {
-            var nextMonth =
-                DateTime(showMonth.year, showMonth.month + 1, showMonth.day);
-            if (nextMonth.day != showMonth.day) {
-              nextMonth = DateTime(showMonth.year, showMonth.month + 2, 0);
-            }
-            onDateChangeFn(nextMonth);
-          },
-        ),
-      ),
-    );
-
-    return FittedBox(
-      child: Container(
-        width: width * 8 / 9,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-        decoration: BoxDecoration(
-          //color: Colors.redAccent,
-          border: Border.all(width: 0.5, color: Colors.black38),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-        child: FittedBox(
-            child: Column(
-          children: [
-            Container(
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: lineAction),
-            ),
-            Stack(
-              alignment: AlignmentDirectional.center,
-              children: lineTitle,
-            ),
-          ],
-        )),
       ),
     );
   }

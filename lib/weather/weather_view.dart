@@ -232,7 +232,7 @@ class _WeatherPageState extends State<WeatherPage> {
           child: Container(
             width: _height,
             child: SimpleLineChart(
-              title: _weatherData.fullCityName,
+              title: _weatherData.fullCityName ?? _weatherData.city,
               lines: [_weatherData.highTemps, _weatherData.lowTemps],
               lineColors: [Colors.orange, Colors.blueAccent],
               xTitles: xTitles,

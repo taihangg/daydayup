@@ -29,16 +29,17 @@ class RawFile {
 //    SaveTaskData();
   }
 
-  getString() async {
+  Future<String> getString() async {
     try {
       await _init();
-      var jsonStr = await _file.readAsString();
+      String jsonStr = await _file.readAsString();
 //      print("loadString:$jsonStr");
 
       return jsonStr;
     } catch (err) {
       print(err);
     }
+    return null;
   }
 
   setString(String text) async {

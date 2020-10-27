@@ -44,21 +44,146 @@ class DayBox extends StatelessWidget {
   final bool selected;
   final bool baskgroundGrey;
   final bool isToday;
-  final List<TextSpan> gregorianStrs;
-  final List<TextSpan> lunarStrs;
+  final List<TextSpan> gregorianFestivalStrs;
+  final String lunarStr;
+  final List<TextSpan> lunarFestivialStrs;
   final Function(DateTime, bool) onSelectCallback;
 
-  DayBox(this.date,
+  double _boxWidth;
+  double _boxItemHight;
+  DayBox(this.date, this.lunarStr,
       {this.showNoteIcon = false,
       this.noteActive = true,
       this.selected = false,
       this.baskgroundGrey = false,
       this.isToday = false,
-      this.gregorianStrs,
-      this.lunarStrs,
-      this.onSelectCallback});
+      this.gregorianFestivalStrs,
+      this.lunarFestivialStrs,
+      this.onSelectCallback}) {
+    _boxWidth = _width / 8;
+    _boxItemHight = (_width / 8) * 2 / 5;
+  }
 
-  Widget _buildText(List<TextSpan> strs, AlignmentGeometry alignment) {
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColor;
+    if (true == isToday) {
+      backgroundColor = Color(0xFFFFD700);
+    } else if (baskgroundGrey) {
+      backgroundColor = Colors.grey[300];
+    }
+
+    List<Widget> stackChildren = [];
+
+    List<Widget> columnChildren = [];
+
+    // // 添加任务图标
+    // if (showNoteIcon) {
+    //   stackChildren.add(Container(
+    //       alignment: Alignment.centerLeft,
+    //       child: Icon(Icons.event_note,
+    //           size: _width / 27,
+    //           color: noteActive ? Colors.orange : Colors.grey)));
+    // }
+
+    // 需要显示月份的情况
+    // if (null != gregorianStrs) {
+    columnChildren.add(_buildRichText(gregorianFestivalStrs));
+    // }
+
+    // 日期数字
+    BoxDecoration decoration = BoxDecoration(
+      // color: Colors.cyan,
+      border: Border.all(width: 0.5, color: Colors.cyan),
+      // borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
+    // decoration = null;
+
+    columnChildren.add(Container(
+        // decoration: decoration,
+        alignment: Alignment.center,
+        width: _boxWidth,
+        height: _boxItemHight,
+        child: FittedBox(
+            fit: BoxFit.fill,
+            child: Text("${date.day}",
+                style:
+                    TextStyle(fontSize: _width / 10, color: Colors.black)))));
+
+    // 农历日期
+    columnChildren.add(Container(
+        // decoration: decoration,
+        alignment: Alignment.center,
+        width: _boxWidth,
+        height: _boxItemHight,
+        child: FittedBox(
+            fit: BoxFit.fill,
+            child: Text(lunarStr,
+                style: TextStyle(
+                    fontSize: _width / 10, color: Colors.grey[600])))));
+
+    // 将公历日期与农历合到一行？？？
+    // columnChildren.add(_buildRichText(
+    //   [
+    //     TextSpan(text: "${date.day}", style: TextStyle(color: Colors.black)),
+    //     TextSpan(text: lunarStr, style: TextStyle(color: Colors.grey[600])),
+    //   ],
+    // ));
+
+    columnChildren.add(_buildRichText(lunarFestivialStrs));
+
+    stackChildren.add(FittedBox(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: columnChildren,
+    )));
+
+    // 用一个单独的Container来处理选中时候的效果
+    // 如果直接在显示层处理选中效果，点击选中的时候显示内容会有细微的大小变化
+    // 背景放在最底层，否则会覆盖其他显示内容
+    stackChildren.insert(
+        0,
+        Container(
+            width: _boxWidth,
+            height: _boxItemHight * columnChildren.length,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(
+                  width: selected ? 2.0 : 0.1,
+                  color: selected ? Colors.red : Colors.black38),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            )));
+
+    return GestureDetector(
+        onTap: () {
+          if (null != onSelectCallback) {
+            onSelectCallback(date, !selected);
+          }
+        },
+        child: Container(
+            width: _boxWidth,
+            // height: _boxItemHight * columnChildren.length,
+            child: Stack(children: stackChildren)));
+  }
+
+  Widget _buildRichText(List<TextSpan> strs) {
+    BoxDecoration decoration = BoxDecoration(
+      // color: Colors.cyan,
+      border: Border.all(width: 0.5, color: Colors.cyan),
+      // borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
+    decoration = null;
+
+    if (null == strs) {
+      return Container(
+        alignment: Alignment.center,
+        width: _boxWidth,
+        height: _boxItemHight,
+        decoration: decoration,
+        child: Text(""),
+      );
+    }
+
     int length = 0;
     strs.forEach((var e) {
       length += e.text.length;
@@ -66,23 +191,30 @@ class DayBox extends StatelessWidget {
     final richText = RichText(text: TextSpan(children: strs));
 
     return Container(
-      alignment: alignment,
+      // alignment: alignment,
+      alignment: Alignment.center,
+      width: _boxWidth,
+      height: _boxItemHight,
+      decoration: decoration,
       child: (length < 5)
           ? richText
-          : Container(
-              width: _width / 8,
-              height: _width / 8 * 2 / 5,
-              child: MarqueeWidget(
-                richText: richText,
-                scrollAxis: Axis.horizontal,
-                ratioOfBlankToScreen: 0.05,
+          : FittedBox(
+              child: Container(
+                width: _boxWidth,
+                height: _boxItemHight,
+                child: MarqueeWidget(
+                  richText: richText,
+                  scrollAxis: Axis.horizontal,
+                  ratioOfBlankToScreen: 0.05,
+                ),
               ),
             ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  ///////////////////////////////////////
+
+  Widget build0(BuildContext context) {
     Color backgroundColor;
     if (true == isToday) {
       backgroundColor = Color(0xFFFFD700);
@@ -98,7 +230,7 @@ class DayBox extends StatelessWidget {
         decoration: BoxDecoration(
       color: backgroundColor,
       border: Border.all(
-          width: selected ? 2.0 : 0.1,
+          width: selected ? 2.0 : 1.5,
           color: selected ? Colors.red : Colors.black38),
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     )));
@@ -119,12 +251,12 @@ class DayBox extends StatelessWidget {
     }
 
     // 需要显示月份的情况
-    if (null != gregorianStrs) {
-      stackChildren.add(_buildText(gregorianStrs, Alignment.topCenter));
+    if (null != gregorianFestivalStrs) {
+      stackChildren.add(_buildRichText(gregorianFestivalStrs));
     }
 
-    if (null != lunarStrs) {
-      stackChildren.add(_buildText(lunarStrs, Alignment.bottomCenter));
+    if (null != lunarFestivialStrs) {
+      stackChildren.add(_buildRichText(lunarFestivialStrs));
     }
 
     return GestureDetector(
@@ -135,7 +267,7 @@ class DayBox extends StatelessWidget {
         },
         child: Container(
             width: _width / 8,
-            height: _width / 7,
+            // height: _width / 20 * 3,
             child: Stack(children: stackChildren)));
   }
 }

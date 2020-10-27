@@ -45,7 +45,7 @@ class WeatherSave {
     return changed;
   }
 
-  setFrom(WeatherData weatherData) {
+  void setFrom(WeatherData weatherData) {
     fullCityName = weatherData.fullCityName;
     cityCode = weatherData.cityCode;
     timestamp = weatherData.timestamp;

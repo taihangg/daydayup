@@ -234,7 +234,7 @@ class MonthViewState extends State<MonthView> {
   }
 
   void _prepareNoteStr(LunarMonth lunarMonth, _MonthInfo monthInfo, int day,
-      List<TextSpan> lunarStrs, List<TextSpan> gregorianStrs) {
+      List<TextSpan> lunarFestivalStrs, List<TextSpan> gregorianFestivalStrs) {
     if (null == lunarMonth) {
       return;
     }
@@ -245,10 +245,10 @@ class MonthViewState extends State<MonthView> {
     final lunarDayInfo = lunarMonth.days[day - 1];
 
     //农历信息+
-    lunarStrs.clear();
+    lunarFestivalStrs.clear();
     if (1 == lunarDayInfo.lunarDay) {
-      //农历月份
-      lunarStrs.addAll([
+      //农历每月第一天，显示一下月份
+      lunarFestivalStrs.addAll([
         TextSpan(
             text: lunarDayInfo.lunarMonthName,
             style: TextStyle(color: Colors.deepOrange)),
@@ -258,15 +258,16 @@ class MonthViewState extends State<MonthView> {
 //        TextSpan(text: ".", style: TextStyle(color: Colors.grey)),
 //        TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
 //      ]);
-    } else {
-      //农历日期
-      lunarStrs.addAll([
-        TextSpan(
-            text: lunarDayInfo.lunarDayName,
-            style: TextStyle(color: Colors.grey)),
-        TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
-      ]);
     }
+    // {
+    //   //农历日期
+    //   lunarFestivalStrs.addAll([
+    //     TextSpan(
+    //         text: lunarDayInfo.lunarDayName,
+    //         style: TextStyle(color: Colors.grey)),
+    //     TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
+    //   ]);
+    // }
 
     if ("" != lunarDayInfo.lunarFestival) {
 //      lunarStrs.addAll([
@@ -274,24 +275,24 @@ class MonthViewState extends State<MonthView> {
 //        TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
 //      ]);
       //农历节日
-      lunarStrs.addAll([
+      lunarFestivalStrs.addAll([
         TextSpan(
             text: lunarDayInfo.lunarFestival,
             style: TextStyle(color: Colors.blue)),
         TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
       ]);
     }
-    lunarStrs.addAll(_getUserDefinedLunarFestival(lunarDayInfo.month,
+    lunarFestivalStrs.addAll(_getUserDefinedLunarFestival(lunarDayInfo.month,
         lunarDayInfo.lunarDay, lunarDayInfo.lunarMonthDayCount));
 
-    if (lunarStrs.isNotEmpty) {
-      lunarStrs.removeLast();
+    if (lunarFestivalStrs.isNotEmpty) {
+      lunarFestivalStrs.removeLast();
     }
 
     //公历信息
-    gregorianStrs.clear();
+    gregorianFestivalStrs.clear();
     if (1 == lunarDayInfo.day) {
-      gregorianStrs.addAll([
+      gregorianFestivalStrs.addAll([
         TextSpan(
             text: "${monthInfo.month}月",
             style: TextStyle(color: Colors.deepOrange)),
@@ -300,14 +301,14 @@ class MonthViewState extends State<MonthView> {
     }
 
     if ("" != lunarDayInfo.jieqi) {
-      if (gregorianStrs.isNotEmpty) {
+      if (gregorianFestivalStrs.isNotEmpty) {
 //        gregorianStrs.addAll([
 //          TextSpan(text: ".", style: TextStyle(color: Colors.grey)),
 //          TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
 //        ]);
       }
       //节气
-      gregorianStrs.addAll([
+      gregorianFestivalStrs.addAll([
         TextSpan(
             text: lunarDayInfo.jieqi,
             style: TextStyle(color: Colors.deepOrange)),
@@ -315,14 +316,14 @@ class MonthViewState extends State<MonthView> {
       ]);
     }
     if ("" != lunarDayInfo.gregorianFestival) {
-      if (gregorianStrs.isNotEmpty) {
+      if (gregorianFestivalStrs.isNotEmpty) {
 //        gregorianStrs.addAll([
 //          TextSpan(text: ".", style: TextStyle(color: Colors.grey)),
 //          TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
 //        ]);
       }
       //公历节日
-      gregorianStrs.addAll([
+      gregorianFestivalStrs.addAll([
         TextSpan(
           text: lunarDayInfo.gregorianFestival,
           style: TextStyle(color: Colors.deepOrange),
@@ -330,11 +331,11 @@ class MonthViewState extends State<MonthView> {
         TextSpan(text: ",", style: TextStyle(color: Colors.grey)),
       ]);
     }
-    gregorianStrs.addAll(_getUserDefinedGregorianFestival(
+    gregorianFestivalStrs.addAll(_getUserDefinedGregorianFestival(
         monthInfo.month, day, monthInfo.daysCount));
 
-    if (gregorianStrs.isNotEmpty) {
-      gregorianStrs.removeLast();
+    if (gregorianFestivalStrs.isNotEmpty) {
+      gregorianFestivalStrs.removeLast();
     }
   }
 
@@ -348,20 +349,22 @@ class MonthViewState extends State<MonthView> {
       final date = DateTime(monthInfo.year, monthInfo.month, day);
       final selected = _isSameDay(date, widget._selectedDate);
       final isToday = _isSameDay(date, today);
-      List<TextSpan> lunarStrs = [], gregorianStrs = [];
-      _prepareNoteStr(lunarMonth, monthInfo, day, lunarStrs, gregorianStrs);
+      String lunarStr = lunarMonth?.days[day - 1].lunarDayName;
+      List<TextSpan> lunarFestivalStrs = [], gregorianFestivalStrs = [];
+      _prepareNoteStr(
+          lunarMonth, monthInfo, day, lunarFestivalStrs, gregorianFestivalStrs);
 
       final noteIconType = widget.noteIconTypeFn(date);
       assert(null != noteIconType);
 
-      days.add(DayBox(date,
+      days.add(DayBox(date, lunarStr ?? "",
           showNoteIcon: (noteIconType != NoteIconType.none),
           noteActive: (noteIconType == NoteIconType.colorful),
           selected: selected,
           isToday: isToday,
           baskgroundGrey: baskgroundGrey,
-          gregorianStrs: gregorianStrs,
-          lunarStrs: lunarStrs,
+          gregorianFestivalStrs: gregorianFestivalStrs,
+          lunarFestivialStrs: lunarFestivalStrs,
           onSelectCallback: _onDaySelectedFn));
     }
 
@@ -437,7 +440,8 @@ class MonthViewState extends State<MonthView> {
     final height = size.height;
 //    print("xxx width=$width height=$height ");
 
-    return Container(
+    return SingleChildScrollView(
+        child: Container(
 //            margin: EdgeInsets.all(screenWidth / 50),
 //            padding: EdgeInsets.all(screenWidth / 50),
       decoration: BoxDecoration(
@@ -487,7 +491,7 @@ class MonthViewState extends State<MonthView> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

@@ -19,7 +19,17 @@ class MonthViewActionBar extends StatelessWidget {
     this.onDateChangeFn,
     this.getFestivalText,
     this.onSaveFn,
-  });
+  }) {
+    _allWidth = width * 8 / 9;
+    _boxHeight = _allWidth / 10;
+    _fontSize = _allWidth / 5;
+    _actionBoxWidth = _allWidth / 4 * 8 / 10;
+  }
+
+  double _allWidth;
+  double _boxHeight;
+  double _fontSize;
+  double _actionBoxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +58,25 @@ class MonthViewActionBar extends StatelessWidget {
     List<Widget> titleLineChildren = <Widget>[
       _buildTitleLineButton1(
           null, "节日\n管理", Colors.indigoAccent, _manageFestival),
-      SizedBox(width: width / 10),
-      _buildTitleLineDateButton(context),
-      SizedBox(width: width / 10),
+      SizedBox(width: _allWidth / 20),
+      _buildTitleLineDateButton(context, _boxHeight, _fontSize),
+      SizedBox(width: _allWidth / 20),
       _buildTitleLineButton1(Colors.yellowAccent, "返回\n今日", Colors.red, () {
         onDateChangeFn(DateTime.now());
         return;
       }),
     ];
 
+    BoxDecoration decoration = BoxDecoration(
+      //color: Colors.redAccent,
+      border: Border.all(width: 0.5, color: Colors.red),
+      // borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
+
     return FittedBox(
       child: Container(
-        width: width * 8 / 9,
+        width: _allWidth,
+        height: _boxHeight * 2,
         margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
         padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
         decoration: BoxDecoration(
@@ -67,43 +84,51 @@ class MonthViewActionBar extends StatelessWidget {
           border: Border.all(width: 0.5, color: Colors.black38),
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
         ),
-        child: FittedBox(
-            child: Column(
+        // child: FittedBox(
+        //     fit: BoxFit.contain,
+        child: Column(
           children: [
-            Container(
-                height: width * 2 / 10,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: actionLineChildren)),
-            Container(
-                height: width * 3 / 10,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: titleLineChildren)),
+            FittedBox(
+                child: Container(
+                    height: _boxHeight,
+                    // decoration: decoration,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: actionLineChildren))),
+            FittedBox(
+                child: Container(
+                    // decoration: decoration,
+                    height: _boxHeight,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: titleLineChildren))),
           ],
-        )),
+        ),
+        // ),
       ),
     );
   }
 
   _toPrevYearFn() {
-    DateTime lastMonth =
+    DateTime lastYear =
         DateTime(showMonth.year - 1, showMonth.month, showMonth.day);
-    if (lastMonth.month != showMonth.month) {
-      lastMonth = DateTime(lastMonth.year, lastMonth.month, 0);
+    if (lastYear.day != showMonth.day) {
+      //如果切换的日期没有这一天，可能会跑到指定日期的下一个月去了，那么就修改为目标月的最后一天
+      lastYear = DateTime(lastYear.year, lastYear.month, 0);
     }
 
-    onDateChangeFn(lastMonth);
+    onDateChangeFn(lastYear);
     return;
   }
 
   _toNextYearFn() {
-    DateTime nextMonth =
+    DateTime nextYear =
         DateTime(showMonth.year + 1, showMonth.month, showMonth.day);
-    if (nextMonth.month != showMonth.month) {
-      nextMonth = DateTime(nextMonth.year, nextMonth.month, 0);
+    if (nextYear.day != showMonth.day) {
+      //如果切换的日期没有这一天，可能会跑到指定日期的下一个月去了，那么就修改为目标月的最后一天
+      nextYear = DateTime(nextYear.year, nextYear.month, 0);
     }
-    onDateChangeFn(nextMonth);
+    onDateChangeFn(nextYear);
     return;
   }
 
@@ -111,6 +136,7 @@ class MonthViewActionBar extends StatelessWidget {
     var lastMonth =
         DateTime(showMonth.year, showMonth.month - 1, showMonth.day);
     if (lastMonth.day != showMonth.day) {
+      //如果切换的日期没有这一天，可能会跑到指定日期的下一个月去了，那么就修改为目标月的最后一天
       lastMonth = DateTime(showMonth.year, showMonth.month, 0);
     }
 
@@ -122,6 +148,7 @@ class MonthViewActionBar extends StatelessWidget {
     var nextMonth =
         DateTime(showMonth.year, showMonth.month + 1, showMonth.day);
     if (nextMonth.day != showMonth.day) {
+      //如果切换的日期没有这一天，可能会跑到指定日期的下一个月去了，那么就修改为目标月的最后一天
       nextMonth = DateTime(showMonth.year, showMonth.month + 2, 0);
     }
     onDateChangeFn(nextMonth);
@@ -131,7 +158,7 @@ class MonthViewActionBar extends StatelessWidget {
   Widget _buildActionLineButton(Color color, IconData icon, String title,
       bool iconAtHead, VoidCallback onPressed) {
     List<Widget> children = [
-      Text(title, style: TextStyle(fontSize: width / 5))
+      Text(title, style: TextStyle(fontSize: _fontSize))
     ];
     if (iconAtHead) {
       children.insert(0, Container(child: Icon(icon)));
@@ -139,26 +166,33 @@ class MonthViewActionBar extends StatelessWidget {
       children.add(Container(child: Icon(icon)));
     }
     return Container(
-      // height: width * 2 / 10,
-      child: RaisedButton(
-        color: color,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: children,
+      width: _allWidth / 4,
+      height: _actionBoxWidth,
+      child: FittedBox(
+        child: RaisedButton(
+          color: color,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: children,
+          ),
+          onPressed: onPressed,
         ),
-        onPressed: onPressed,
       ),
     );
   }
 
-  Widget _buildTitleLineButton1(Color backgroundColor, String text,
-      Color textColor, GestureTapCallback onTap) {
+  Widget _buildTitleLineButton1(
+    Color backgroundColor,
+    String text,
+    Color textColor,
+    GestureTapCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: width * 2 / 10,
-        height: width * 2 / 10,
+        width: _boxHeight,
+        height: _boxHeight,
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border.all(width: 2.0, color: Colors.black38),
@@ -166,16 +200,27 @@ class MonthViewActionBar extends StatelessWidget {
         ),
         child: FittedBox(
           child: Text(text,
-              style: TextStyle(color: textColor, fontSize: width / 10)),
+              style: TextStyle(color: textColor, fontSize: _fontSize)),
         ),
       ),
     );
   }
 
-  Widget _buildTitleLineDateButton(BuildContext context) {
+  Widget _buildTitleLineDateButton(
+    BuildContext context,
+    double boxHeight,
+    double fontSize,
+  ) {
+    BoxDecoration decoration = BoxDecoration(
+      //color: Colors.redAccent,
+      border: Border.all(width: 0.5, color: Colors.lightBlue),
+      // borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
+
     return Container(
-      width: width * 6 / 10,
-      height: width * 4 / 10,
+      // width: width * 6 / 10,
+      height: boxHeight,
+      // decoration: decoration,
       //alignment: Alignment.center,
       //padding: EdgeInsets.fromLTRB(screenWidth / 100, 0, screenWidth / 100, 0),
 //      color: Colors.lightBlueAccent,
@@ -189,7 +234,7 @@ class MonthViewActionBar extends StatelessWidget {
                 "${showMonth.month}月" +
                 ((showMonth.day < 10) ? " " : "") +
                 "${showMonth.day}日",
-            style: TextStyle(fontSize: width / 1, color: Colors.black),
+            style: TextStyle(fontSize: fontSize, color: Colors.black),
           ),
           onPressed: () async {
 //          var pickDate = await showDatePicker(

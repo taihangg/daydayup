@@ -23,10 +23,6 @@ class MonthViewActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//    lineTitle.add(
-//      SizedBox(width: screenWidth / 50),
-//    );
-
     // final double fontSize = width / 15;
     List<Widget> actionLineChildren = <Widget>[
       _buildActionLineButton(
@@ -52,9 +48,9 @@ class MonthViewActionBar extends StatelessWidget {
     List<Widget> titleLineChildren = <Widget>[
       _buildTitleLineButton1(
           null, "节日\n管理", Colors.indigoAccent, _manageFestival),
-      SizedBox(width: width / 50),
+      SizedBox(width: width / 10),
       _buildTitleLineDateButton(context),
-      SizedBox(width: width / 50),
+      SizedBox(width: width / 10),
       _buildTitleLineButton1(Colors.yellowAccent, "返回\n今日", Colors.red, () {
         onDateChangeFn(DateTime.now());
         return;
@@ -75,12 +71,12 @@ class MonthViewActionBar extends StatelessWidget {
             child: Column(
           children: [
             Container(
-                height: width / 5,
+                height: width * 2 / 10,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: actionLineChildren)),
             Container(
-                height: width / 5,
+                height: width * 3 / 10,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: titleLineChildren)),
@@ -91,13 +87,22 @@ class MonthViewActionBar extends StatelessWidget {
   }
 
   _toPrevYearFn() {
-    final lastMonth = DateTime(showMonth.year - 1, showMonth.month, 1);
+    DateTime lastMonth =
+        DateTime(showMonth.year - 1, showMonth.month, showMonth.day);
+    if (lastMonth.month != showMonth.month) {
+      lastMonth = DateTime(lastMonth.year, lastMonth.month, 0);
+    }
+
     onDateChangeFn(lastMonth);
     return;
   }
 
   _toNextYearFn() {
-    final nextMonth = DateTime(showMonth.year + 1, showMonth.month, 1);
+    DateTime nextMonth =
+        DateTime(showMonth.year + 1, showMonth.month, showMonth.day);
+    if (nextMonth.month != showMonth.month) {
+      nextMonth = DateTime(nextMonth.year, nextMonth.month, 0);
+    }
     onDateChangeFn(nextMonth);
     return;
   }
@@ -126,7 +131,7 @@ class MonthViewActionBar extends StatelessWidget {
   Widget _buildActionLineButton(Color color, IconData icon, String title,
       bool iconAtHead, VoidCallback onPressed) {
     List<Widget> children = [
-      Text(title, style: TextStyle(fontSize: width / 10))
+      Text(title, style: TextStyle(fontSize: width / 5))
     ];
     if (iconAtHead) {
       children.insert(0, Container(child: Icon(icon)));
@@ -134,6 +139,7 @@ class MonthViewActionBar extends StatelessWidget {
       children.add(Container(child: Icon(icon)));
     }
     return Container(
+      // height: width * 2 / 10,
       child: RaisedButton(
         color: color,
         child: Row(
@@ -168,8 +174,8 @@ class MonthViewActionBar extends StatelessWidget {
 
   Widget _buildTitleLineDateButton(BuildContext context) {
     return Container(
-      width: width * 10 / 10,
-      height: width * 2 / 10,
+      width: width * 6 / 10,
+      height: width * 4 / 10,
       //alignment: Alignment.center,
       //padding: EdgeInsets.fromLTRB(screenWidth / 100, 0, screenWidth / 100, 0),
 //      color: Colors.lightBlueAccent,
@@ -183,7 +189,7 @@ class MonthViewActionBar extends StatelessWidget {
                 "${showMonth.month}月" +
                 ((showMonth.day < 10) ? " " : "") +
                 "${showMonth.day}日",
-            style: TextStyle(fontSize: width / 10, color: Colors.black),
+            style: TextStyle(fontSize: width / 1, color: Colors.black),
           ),
           onPressed: () async {
 //          var pickDate = await showDatePicker(

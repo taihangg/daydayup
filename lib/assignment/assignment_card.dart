@@ -321,7 +321,8 @@ class _AssignmentCardState extends State<AssignmentCard>
                     builder: (BuildContext context) {
                       return ReplenishReportPage(
                         pageTitle: "补报",
-                        initDate: DateInt(DateTime.now()).prevousDay,
+                        // initDate: DateInt(DateTime.now()).prevousDay, // 默认昨天
+                        initDate: DateInt(DateTime.now()), // 默认今天
                         isDateChangeable: true,
                         line1_title: "已完成：",
                         line1_getNumOnDateChangeFn:

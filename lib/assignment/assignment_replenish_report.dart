@@ -132,7 +132,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
       title: Center(
           child: Text(widget.pageTitle,
               style:
-                  TextStyle(color: Colors.deepOrange, fontSize: _width / 12))),
+                  TextStyle(color: Colors.deepOrange, fontSize: _width / 15))),
       children: [
         Divider(),
         SizedBox(height: _width / 40),
@@ -174,8 +174,8 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: _width / 10,
-        height: _width / 10,
+        width: _width / 7,
+        height: _width / 7,
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border.all(width: 2.0, color: Colors.black38),
@@ -183,7 +183,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         ),
         child: FittedBox(
           child: Text(text,
-              style: TextStyle(color: textColor, fontSize: _width / 10)),
+              style: TextStyle(color: textColor, fontSize: _width / 5)),
         ),
       ),
     );
@@ -205,7 +205,9 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
                 : Colors.grey[350],
             "昨天",
             isSameDay(yesterday, _date) ? Colors.red : Colors.indigoAccent, () {
-          _updateDate(DateInt(DateTime.now()).prevousDay.dt);
+          if (widget.isDateChangeable) {
+            _updateDate(DateInt(DateTime.now()).prevousDay.dt);
+          }
           return;
         }),
         SizedBox(width: _width / 20),
@@ -213,7 +215,9 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
             isSameDay(today, _date) ? Colors.yellowAccent : Colors.grey[350],
             "今天",
             isSameDay(today, _date) ? Colors.red : Colors.indigoAccent, () {
-          _updateDate(DateTime.now());
+          if (widget.isDateChangeable) {
+            _updateDate(DateTime.now());
+          }
           return;
         }),
         SizedBox(width: _width / 20),
@@ -232,7 +236,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
   }
 
   _updateDate(DateTime newDate) async {
-    if (_date == newDate) {
+    if (isSameDay(_date, newDate)) {
       return;
     }
 

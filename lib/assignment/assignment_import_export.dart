@@ -18,6 +18,8 @@ import 'package:esys_flutter_share/esys_flutter_share.dart'
     as esys_flutter_share;
 
 class ImportExport extends StatefulWidget {
+  final void Function() afterImport;
+  ImportExport({this.afterImport});
   @override
   State<StatefulWidget> createState() {
     return ImportExportState();
@@ -255,6 +257,9 @@ class ImportExportState extends State<ImportExport> {
                     String showMsg;
                     if ((null == msg) || ("" == msg)) {
                       showMsg = "导入成功";
+                      if (null != widget.afterImport) {
+                        widget.afterImport();
+                      }
                     } else {
                       showMsg = msg;
                     }
@@ -451,8 +456,8 @@ class ImportExportState extends State<ImportExport> {
 //    }
 //    String localPath = await _localImportFilePath();
 //    final String localPath =
-    final File file =
-        await FilePicker.getFile(type: FileType.CUSTOM, fileExtension: "xlsx");
+    final File file = await FilePicker.getFile(
+        type: FileType.custom, allowedExtensions: ["xlsx"]);
     if (null == file) {
       return "未选择文件";
     }

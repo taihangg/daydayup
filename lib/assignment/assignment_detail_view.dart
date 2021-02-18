@@ -148,7 +148,10 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
       Icons.import_export,
       () {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-          return ImportExport();
+          return ImportExport(afterImport: () async {
+            await _init();
+            setState(() {});
+          });
         }));
       },
     );

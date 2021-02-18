@@ -273,8 +273,12 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
     final inputBox = _buildTextInputBox(
         widget.line2_title, _line2_controller, true, _line2_onInputTextChanged);
     if (null == _line2_animation) {
-      _line2_controller.text =
-          (null != _line2_realNum) ? "$_line2_realNum" : "";
+      if ((null != _line2_realNum) && (0 != _line2_realNum)) {
+        _line2_controller.text = "$_line2_realNum";
+      } else {
+        _line2_controller.text = "";
+      }
+
       return inputBox;
     }
 
@@ -286,7 +290,11 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
       animation: _line2_animationController,
       builder: (BuildContext context, Widget child) {
         _line2_showNum = animation.value;
-        _line2_controller.text = animation.value.toString();
+        if (0 != _line2_showNum) {
+          _line2_controller.text = "$_line2_showNum";
+        } else {
+          _line2_controller.text = "";
+        }
         return inputBox;
       },
     );
@@ -350,7 +358,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
         _buildTextInputBox(widget.line1_title, _line1_controller, false, null);
     if (null == _line1_animation) {
       _line1_controller.text =
-          (null != _line1_realNum) ? "$_line1_realNum" : "无";
+          (null != _line1_realNum) ? "$_line1_realNum" : "";
       return inputBox;
     }
 

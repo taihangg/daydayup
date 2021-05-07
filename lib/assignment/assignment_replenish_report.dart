@@ -194,11 +194,25 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
 
     final today = DateTime.now();
     final yesterday = DateInt(today).prevousDay.dt;
+    final preYesterday = DateInt(yesterday).prevousDay.dt;
     return Container(
         child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        SizedBox(width: _width / 4),
+        SizedBox(width: _width / 20),
+        _buildDateShotcutButton(
+            isSameDay(preYesterday, _date)
+                ? Colors.yellowAccent
+                : Colors.grey[350],
+            "前天",
+            isSameDay(preYesterday, _date) ? Colors.red : Colors.indigoAccent,
+            () {
+          if (widget.isDateChangeable) {
+            _updateDate(preYesterday);
+          }
+          return;
+        }),
+        SizedBox(width: _width / 20),
         _buildDateShotcutButton(
             isSameDay(yesterday, _date)
                 ? Colors.yellowAccent
@@ -206,7 +220,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
             "昨天",
             isSameDay(yesterday, _date) ? Colors.red : Colors.indigoAccent, () {
           if (widget.isDateChangeable) {
-            _updateDate(DateInt(DateTime.now()).prevousDay.dt);
+            _updateDate(yesterday);
           }
           return;
         }),
@@ -216,7 +230,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
             "今天",
             isSameDay(today, _date) ? Colors.red : Colors.indigoAccent, () {
           if (widget.isDateChangeable) {
-            _updateDate(DateTime.now());
+            _updateDate(today);
           }
           return;
         }),

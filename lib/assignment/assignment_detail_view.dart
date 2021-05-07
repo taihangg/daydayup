@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../common_util.dart';
 import 'assignment_add_edit_page.dart';
@@ -10,9 +11,20 @@ import 'assignment_data.dart';
 import 'assignment_import_export.dart';
 
 class AssignmentDetailView extends StatefulWidget {
+  static int g_showingPageindex = 0;
+  AssignmentDetailViewState _viewState;
+  void setShowingPage(int showingPageindex) {
+    g_showingPageindex = showingPageindex;
+    if ((null != _viewState) && (_viewState.mounted)) {
+      _viewState.setState(() {});
+    }
+    return;
+  }
+
   @override
   State<StatefulWidget> createState() {
-    return AssignmentDetailViewState();
+    _viewState = AssignmentDetailViewState();
+    return _viewState;
   }
 }
 
@@ -22,6 +34,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
   double _bigBoxWidth;
   double _smallBoxWidth;
   double _smallBoxHeight;
+
   AssignmentDetailViewState() {
     _bigBoxWidth = _width * 9 / 10;
     _smallBoxWidth = _bigBoxWidth / 2;
@@ -60,9 +73,66 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
       if (_assignmentDataList.isEmpty) {
         child = _buildEmptyPrompt();
       } else {
-        child = _buildAssignmentCards();
+        // child = _buildAssignmentCards();
+        // child = ListView.separated(
+        //   itemBuilder: (BuildContext context, int index) {
+        //     if (index < _assignmentDataList.length) {
+        //       return AssignmentCard(_assignmentDataList[index], refresh: () {
+        //         setState(() {});
+        //       });
+        //     }
+        //     return null;
+        //   },
+        //   separatorBuilder: (BuildContext context, int index) {
+        //     return Divider();
+        //   },
+        //   itemCount:_assignmentDataList.length ,
+        // );
+
+        final pageController = PageController(
+            viewportFraction: 0.9,
+            initialPage: AssignmentDetailView.g_showingPageindex);
+
+        var pageView = PageView.builder(
+          scrollDirection: Axis.vertical,
+          // scrollDirection: Axis.horizontal,
+          controller: pageController, // 从1开始
+          onPageChanged: (int index) {
+            AssignmentDetailView.g_showingPageindex = index;
+            return;
+          },
+          itemBuilder: (BuildContext context, int index) {
+            if (index < _assignmentDataList.length) {
+              return AssignmentCard(_assignmentDataList[index], refresh: () {
+                setState(() {});
+              });
+            }
+            return null;
+          },
+          itemCount: _assignmentDataList.length,
+        );
+
+        var indicator = SmoothPageIndicator(
+          controller: pageController,
+          axisDirection: Axis.vertical,
+          count: _assignmentDataList.length,
+          // effect: WormEffect(),
+        );
+
+        child = Row(
+          children: [
+            Container(width: _width * 95 / 100, child: pageView),
+            Container(width: _width * 5 / 100, child: indicator)
+          ],
+        );
       }
     }
+
+    return Scaffold(
+      body: Container(
+//      decoration: BoxDecoration(color: Colors.cyan[100]),
+          child: Scrollbar(child: child)),
+    );
 
     return Scaffold(
       body: Container(
@@ -120,7 +190,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         ),
         SizedBox(height: _width * 1 / 100),
         child,
-        SizedBox(height: _width / 20),
+        SizedBox(height: _width / 100),
       ],
     );
   }

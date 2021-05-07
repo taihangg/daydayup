@@ -1,11 +1,14 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'assignment_data.dart';
-import 'assignment_bar.dart';
+
 import '../common_util.dart';
+import 'assignment_bar.dart';
+import 'assignment_data.dart';
 
 class AssignmentOverview extends StatefulWidget {
-  AssignmentOverview();
+  final void Function(int index) onTapTitle;
+  AssignmentOverview(this.onTapTitle);
 
   @override
   State<StatefulWidget> createState() {
@@ -94,7 +97,7 @@ class _AssignmentOverviewState extends State<AssignmentOverview>
 //          header: AssignmentItem.title(),
           children: _assignmentDataList.map((a) {
             colorInt = (colorInt + 1) % colors.length;
-            return AssignmentBar(a, colors[colorInt]);
+            return AssignmentBar(a, colors[colorInt], widget.onTapTitle);
           }).toList(),
           onReorder: (int oldIndex, int newIndex) {
             final a = _assignmentDataList.removeAt(oldIndex);

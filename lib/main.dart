@@ -1,17 +1,18 @@
 import 'dart:ui';
 
-import 'assignment/assignment_overview.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'assignment/assignment_detail_view.dart';
+import 'assignment/assignment_overview.dart';
 import 'calendar/month_todo_page.dart';
 import 'my_navigation_bar.dart';
-import 'weather/weather_view.dart';
-import 'assignment/assignment_detail_view.dart';
 import 'plugins/common_localizations_delegate.dart';
+import 'weather/weather_view.dart';
 
 void main() {
 //  testFn();
@@ -59,7 +60,8 @@ class _HomePage extends StatefulWidget {
   }
 }
 
-class _HomePageState extends State<_HomePage> {
+class _HomePageState extends State<_HomePage>
+    with SingleTickerProviderStateMixin {
   _HomePageState() {
     _checkPermission();
   }
@@ -69,8 +71,12 @@ class _HomePageState extends State<_HomePage> {
 
   int _bottomBarSelectIndex = 0; // 默认第一个
 
+  TabController _tabController;
+
   final List<Widget> _tabList = [];
   final List<Widget> _tabBarViewChildren = [];
+
+  final _assignmentDetailView = AssignmentDetailView();
 
   @override
   void initState() {
@@ -80,6 +86,11 @@ class _HomePageState extends State<_HomePage> {
     _addAssignmentDetail();
     _addMonthTodoPage();
     _addWeather();
+
+    _tabController =
+        TabController(length: _tabBarViewChildren.length, vsync: this);
+
+    return;
   }
 
   @override
@@ -101,11 +112,15 @@ class _HomePageState extends State<_HomePage> {
           appBar: AppBar(
             //leading: Text('Tabbed AppBar'),
             //title: const Text('Tabbed AppBar'),
-            title: TabBar(isScrollable: false, tabs: _tabList),
+            title: TabBar(
+                isScrollable: false,
+                tabs: _tabList,
+                controller: _tabController),
 //      bottom: myTabBar,
           ),
 //      body: _tabBarViewChildren[_bottomBarSelectIndex],
-          body: TabBarView(children: _tabBarViewChildren),
+          body: TabBarView(
+              children: _tabBarViewChildren, controller: _tabController),
 //      bottomNavigationBar: bottomNavigateBar,
         ),
         onWillPop: _onWillPop,
@@ -120,15 +135,7 @@ class _HomePageState extends State<_HomePage> {
     ));
 
     _tabBarViewChildren.add(MonthTodoPage());
-  }
-
-  _addAssignmentDetail() {
-    _tabList.add(Tab(
-//      text: "功课",
-      icon: Icon(Icons.assignment),
-    ));
-
-    _tabBarViewChildren.add(AssignmentDetailView());
+    return;
   }
 
   _addAssignmentOverview() {
@@ -139,7 +146,23 @@ class _HomePageState extends State<_HomePage> {
       icon: Icon(Icons.format_list_bulleted),
     ));
 
-    _tabBarViewChildren.add(AssignmentOverview());
+    _tabBarViewChildren.add(AssignmentOverview((int index) {
+      _tabController.index = 1; // detail tab
+      _assignmentDetailView.setShowingPage(index);
+      // setState(() {});
+      return;
+    }));
+    return;
+  }
+
+  _addAssignmentDetail() {
+    _tabList.add(Tab(
+//      text: "功课",
+      icon: Icon(Icons.assignment),
+    ));
+
+    _tabBarViewChildren.add(_assignmentDetailView);
+    return;
   }
 
   _addWeather() {
@@ -149,6 +172,7 @@ class _HomePageState extends State<_HomePage> {
     ));
 
     _tabBarViewChildren.add(WeatherPage());
+    return;
   }
 
   _checkPermission() async {

@@ -1,7 +1,9 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'assignment_data.dart';
+
 import '../common_util.dart';
+import 'assignment_data.dart';
 
 class _AssignmentBarUtil {
   final double _width = MediaQueryData.fromWindow(window).size.width;
@@ -101,7 +103,10 @@ class AssignmentBar extends StatefulWidget {
   final AssignmentData a;
   final Color color;
 
-  AssignmentBar(this.a, this.color) : super(key: ValueKey(a.ID));
+  final Function(int) onTapTitle;
+
+  AssignmentBar(this.a, this.color, this.onTapTitle)
+      : super(key: ValueKey(a.ID));
 
   @override
   State<StatefulWidget> createState() {
@@ -209,11 +214,16 @@ class _AssignmentBarState extends State<AssignmentBar>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _util.buildStringBox(
-          widget.a.name,
-          textColor: Color(0xFFFF8C00), //widget.color,
-          hasLeftBar: false,
-          width: _util.defaultBoxWidth * 2,
+        GestureDetector(
+          child: _util.buildStringBox(
+            widget.a.name,
+            textColor: Color(0xFFFF8C00), //widget.color,
+            hasLeftBar: false,
+            width: _util.defaultBoxWidth * 2,
+          ),
+          onTap: () {
+            widget.onTapTitle(widget.a.sortSequence);
+          },
         ),
         _buildAnimatedNumBox(0, newData[0]),
         _buildAnimatedNumBox(1, newData[1]),

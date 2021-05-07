@@ -89,11 +89,11 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         //   itemCount:_assignmentDataList.length ,
         // );
 
-        final pageController = PageController(
+        final PageController pageController = PageController(
             viewportFraction: 0.9,
             initialPage: AssignmentDetailView.g_showingPageindex);
 
-        var pageView = PageView.builder(
+        final PageView pageView = PageView.builder(
           scrollDirection: Axis.vertical,
           // scrollDirection: Axis.horizontal,
           controller: pageController, // 从1开始
@@ -116,6 +116,11 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
           controller: pageController,
           axisDirection: Axis.vertical,
           count: _assignmentDataList.length,
+          onDotClicked: (int index) {
+            pageController.animateToPage(index,
+                duration: Duration(milliseconds: 500), curve: Curves.easeOut);
+            return;
+          },
           // effect: WormEffect(),
         );
 
@@ -129,6 +134,12 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         );
       }
     }
+
+    return Scaffold(
+      body: Container(
+//      decoration: BoxDecoration(color: Colors.cyan[100]),
+          child: child),
+    );
 
     return Scaffold(
       body: Container(

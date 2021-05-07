@@ -120,9 +120,11 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         );
 
         child = Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(width: _width * 95 / 100, child: pageView),
-            Container(width: _width * 5 / 100, child: indicator)
+            Container(width: _width * 96 / 100, child: pageView),
+            Container(width: _width * 2 / 100, child: indicator),
+            SizedBox(width: _width * 2 / 100),
           ],
         );
       }

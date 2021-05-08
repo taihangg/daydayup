@@ -125,7 +125,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         );
 
         final popMenuButton = PopupMenuButton<String>(
-          icon: Icon(Icons.list, color: Colors.cyan),
+          icon: Icon(Icons.list, color: Colors.cyan, size: _width * 12 / 100),
           itemBuilder: (context) {
             return <PopupMenuEntry<String>>[
               PopupMenuItem<String>(
@@ -146,7 +146,8 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.cyan, width: 1.5),
                 borderRadius: BorderRadius.circular((20.0))),
-            child: Icon(Icons.vertical_align_top, color: Colors.cyan),
+            child: Icon(Icons.vertical_align_top,
+                color: Colors.cyan, size: _width * 10 / 100),
           ),
           onTap: () {
             pageController.animateToPage(0,
@@ -169,16 +170,19 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
               mainAxisAlignment: MainAxisAlignment.start,
               // crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [popMenuButton]),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    toTopButton,
-                    SizedBox(width: _width * 3 / 100),
-                  ],
-                ),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  popMenuButton,
+                  SizedBox(width: _width * 6 / 100),
+                ]),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  SizedBox(width: _width * 10 / 100, child: Divider()),
+                  SizedBox(width: _width * 6 / 100),
+                ]),
+                SizedBox(height: _width * 2 / 100),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  toTopButton,
+                  SizedBox(width: _width * 5 / 100),
+                ]),
               ],
             ),
           ],

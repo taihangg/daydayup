@@ -90,7 +90,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         // );
 
         final PageController pageController = PageController(
-            viewportFraction: 0.9,
+            viewportFraction: 0.8,
             initialPage: AssignmentDetailView.g_showingPageindex);
 
         final PageView pageView = PageView.builder(
@@ -124,12 +124,63 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
           // effect: WormEffect(),
         );
 
-        child = Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        final popMenuButton = PopupMenuButton<String>(
+          icon: Icon(Icons.list, color: Colors.cyan),
+          itemBuilder: (context) {
+            return <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: '导入导出',
+                //child: Text('语文'),
+                child: _buildImportExportButton(),
+              ),
+              PopupMenuItem<String>(
+                value: '新建课程',
+                child: _buildAddNewButton(),
+              ),
+            ];
+          },
+        );
+
+        final toTopButton = GestureDetector(
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.cyan, width: 1.5),
+                borderRadius: BorderRadius.circular((20.0))),
+            child: Icon(Icons.vertical_align_top, color: Colors.cyan),
+          ),
+          onTap: () {
+            pageController.animateToPage(0,
+                duration: Duration(milliseconds: 500), curve: Curves.easeOut);
+            return;
+          },
+        );
+
+        child = Stack(
           children: [
-            Container(width: _width * 96 / 100, child: pageView),
-            Container(width: _width * 2 / 100, child: indicator),
-            SizedBox(width: _width * 2 / 100),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(width: _width * 96 / 100, child: pageView),
+                Container(width: _width * 2 / 100, child: indicator),
+                // SizedBox(width: _width * 2 / 100),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              // crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [popMenuButton]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    toTopButton,
+                    SizedBox(width: _width * 3 / 100),
+                  ],
+                ),
+              ],
+            ),
           ],
         );
       }
@@ -247,15 +298,16 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         height: _width / 10,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.cyanAccent,
-          border: Border.all(width: 1.0, color: Colors.black),
+          // color: Colors.cyanAccent,
+          border: Border.all(width: 1.0, color: Colors.grey),
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
         ),
         child: FittedBox(
             child: FlatButton.icon(
 //          color: Colors.cyanAccent,
-          icon: Icon(icon, size: _width / 10),
-          label: Text(title, style: TextStyle(fontSize: _width / 15)),
+          icon: Icon(icon, size: _width / 10, color: Colors.cyan),
+          label: Text(title,
+              style: TextStyle(fontSize: _width / 15, color: Colors.cyan)),
           onPressed: onPressedFn,
         )));
   }

@@ -260,7 +260,7 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
                       child: Text(_formatDate(date),
                           style: TextStyle(
                               fontSize: _fontSize,
-                              color: dateColor ?? Colors.grey[600])))),
+                              color: dateColor ?? Colors.cyan[600])))),
               _buildVerticalDivider(),
               Container(
 //                  color: Colors.orange,

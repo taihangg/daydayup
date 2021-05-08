@@ -35,6 +35,48 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
 
     _fontSize = _width / 18;
     _rowHeight = _width * 10 / 100;
+
+    return;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Center(
+          child: FittedBox(
+              child: Text("${widget.assignmentData.name}",
+                  style:
+                      TextStyle(color: Colors.orange, fontSize: _width / 12)))),
+      titlePadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+      contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+      children: [
+        _buildTitleRow(
+            sequenceStr: " ",
+            dateStr: "日期",
+            dateColor: Colors.black87,
+            numStr: "数量",
+            numColor: Colors.black87),
+        SizedBox(height: _width * 1 / 100),
+        SizedBox(
+            height: 2,
+//            color: Colors.yellow,
+//            alignment: Alignment.bottomCenter,
+            child: Divider(height: _width / 10, color: Colors.grey[800])),
+        _buildBody(),
+        SizedBox(
+            height: 2,
+            child: Divider(height: _width / 10, color: Colors.grey[800])),
+        FlatButton(
+          child: Text('返回',
+              style: TextStyle(
+                  color: Colors.lightBlueAccent, fontSize: _width / 15)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
   }
 
   DailyData _getDailyData(int i) {
@@ -42,15 +84,16 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
       return _allDailyDatas[i];
     }
 
-    _getPrevoursYearData();
+    _fetchPrevYearData();
 
     return null;
   }
 
-  _getPrevoursYearData() async {
+  _fetchPrevYearData() async {
     if (true != _moreData) {
       return;
     }
+
     final m = await widget.assignmentData.getPrevousYearNonZeroDailyData(_year);
     if (null == m) {
       _moreData = false;
@@ -63,7 +106,11 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
       _allDailyDatas.addAll(datas);
     });
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+
+    return;
   }
 
   void _onReplenishReportCommit_setNum(
@@ -323,44 +370,6 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
           return null;
         },
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: Center(
-          child: FittedBox(
-              child: Text(
-        "${widget.assignmentData.name}",
-        style: TextStyle(color: Colors.orange, fontSize: _width / 12),
-      ))),
-      children: [
-        _buildTitleRow(
-            sequenceStr: " ",
-            dateStr: "日期",
-            dateColor: Colors.black87,
-            numStr: "数量",
-            numColor: Colors.black87),
-        SizedBox(height: _width / 50),
-        SizedBox(
-            height: 2,
-//            color: Colors.yellow,
-//            alignment: Alignment.bottomCenter,
-            child: Divider(height: _width / 10, color: Colors.grey[800])),
-        _buildBody(),
-        SizedBox(
-            height: 2,
-            child: Divider(height: _width / 10, color: Colors.grey[800])),
-        FlatButton(
-          child: Text('返回',
-              style: TextStyle(
-                  color: Colors.lightBlueAccent, fontSize: _width / 15)),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
     );
   }
 }

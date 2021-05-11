@@ -36,6 +36,8 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
     _fontSize = _width / 18;
     _rowHeight = _width * 10 / 100;
 
+    _fetchPrevYearData();
+
     return;
   }
 
@@ -80,11 +82,13 @@ class ShowAllDailyDataViewState extends State<ShowAllDailyDataView> {
   }
 
   DailyData _getDailyData(int i) {
+    if (i + 1 == _allDailyDatas.length) {
+      _fetchPrevYearData();
+    }
+
     if (i < _allDailyDatas.length) {
       return _allDailyDatas[i];
     }
-
-    _fetchPrevYearData();
 
     return null;
   }

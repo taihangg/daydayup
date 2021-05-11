@@ -17,7 +17,7 @@ class AssignmentOverview extends StatefulWidget {
 }
 
 class _AssignmentOverviewState extends State<AssignmentOverview>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final double _width = MediaQueryData.fromWindow(window).size.width;
   final double _height = MediaQueryData.fromWindow(window).size.height;
 
@@ -25,7 +25,11 @@ class _AssignmentOverviewState extends State<AssignmentOverview>
     _init();
   }
 
+  @override
+  bool get wantKeepAlive => true;
+
   List<AssignmentData> _assignmentDataList;
+
   _init() async {
     _assignmentDataList = await AssignmentData.getAllAssignment();
 //    await Future.delayed(Duration(seconds: 100));

@@ -436,7 +436,7 @@ class ReplenishReportPageState extends State<ReplenishReportPage>
             final newDate = await showDatePicker(
               context: context,
               initialDate: _date,
-              firstDate: DateTime(today.year - 1, 1, 1),
+              firstDate: DateTime(today.year - 10, 1, 1),
               lastDate: today,
               locale: Locale("zh", "CN"),
             );

@@ -42,12 +42,14 @@ class _AssignmentCardState extends State<AssignmentCard>
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     _animationController.forward(); // 运行一下，否则刚打开的时候会停在默认起始值
+    return;
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+    return;
   }
 
   @override

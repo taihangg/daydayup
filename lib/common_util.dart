@@ -1,16 +1,14 @@
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'plugins/color_loader_2.dart';
-import 'plugins/color_loader_3.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as m;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+
+import 'plugins/color_loader_2.dart';
+import 'plugins/color_loader_3.dart';
 
 String ValidateNumFn(String value) {
   if (value.isEmpty) {

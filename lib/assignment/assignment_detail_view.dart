@@ -39,7 +39,8 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
     _bigBoxWidth = _width * 9 / 10;
     _smallBoxWidth = _bigBoxWidth / 2;
     _smallBoxHeight = _width * 8 / 100;
-    _init();
+
+    return;
   }
 
   final _fmt = DateFormat('yyyy-MM-dd');
@@ -49,14 +50,19 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
   @override
   initState() {
     super.initState();
+
+    _fetchData();
+
+    return;
   }
 
   @override
   void dispose() {
     super.dispose();
+    return;
   }
 
-  _init() async {
+  _fetchData() async {
     _assignmentDataList = await AssignmentData.getAllAssignment();
 //    await Future.delayed(Duration(seconds: 100));
     if (mounted) {
@@ -88,6 +94,12 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
         //   },
         //   itemCount:_assignmentDataList.length ,
         // );
+
+        if (_assignmentDataList.length <=
+            AssignmentDetailView.g_showingPageindex) {
+          AssignmentDetailView.g_showingPageindex =
+              _assignmentDataList.length - 1;
+        }
 
         final PageController pageController = PageController(
             viewportFraction: 0.8,
@@ -287,7 +299,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
       () {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
           return ImportExport(afterImport: () async {
-            await _init();
+            await _fetchData();
             setState(() {});
           });
         }));

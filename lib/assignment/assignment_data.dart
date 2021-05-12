@@ -1,3 +1,4 @@
+import 'package:event_bus/event_bus.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../common_util.dart';
@@ -44,6 +45,14 @@ class AssignmentData {
   //   2：_dailyYears有对应的年份，则仅需添加日数据；
   final List<int> _dailyYears = [];
   final Map<int, Map<int, int>> _dailyDatas = {}; // year,date,done
+
+  static EventBus _event = EventBus();
+  static dynamic addListener(void Function() onDataUpdated) {
+    return _event.on<MyEvent_dataUpdated>().listen((MyEvent_dataUpdated event) {
+      onDataUpdated();
+      return;
+    });
+  }
 
   AssignmentData() {}
 
@@ -644,6 +653,9 @@ primary key (${_columnDate}, ${_columnID})
     }
 
     _removeFromList();
+    _event.fire(MyEvent_dataUpdated());
+
+    return null;
   }
 
   void _removeFromList() {
@@ -1059,6 +1071,8 @@ primary key (${_columnDate}, ${_columnID})
       periodSumUpdated: periodSumUpdated,
     );
 
+    _event.fire(MyEvent_dataUpdated());
+
     return true;
   }
 
@@ -1236,6 +1250,8 @@ primary key (${_columnDate}, ${_columnID})
       firstDateUpdated: firstDateUpdated,
       periodSumUpdated: periodSumUpdated,
     );
+
+    _event.fire(MyEvent_dataUpdated());
 
     return;
   }
@@ -1597,3 +1613,5 @@ primary key (${_columnDate}, ${_columnID})
     }
   }
 }
+
+class MyEvent_dataUpdated {}

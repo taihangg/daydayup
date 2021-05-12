@@ -21,25 +21,59 @@ class _AssignmentOverviewState extends State<AssignmentOverview>
   final double _width = MediaQueryData.fromWindow(window).size.width;
   final double _height = MediaQueryData.fromWindow(window).size.height;
 
-  _AssignmentOverviewState() {
-    _init();
+  _AssignmentOverviewState() {}
+
+  List<AssignmentData> _assignmentDataList;
+
+  static ScrollController _scrollController;
+  static double _offset = 0.0;
+  var _eventBusFn;
+  @override
+  initState() {
+    super.initState();
+
+    if (null == _scrollController) {
+      _scrollController = ScrollController(initialScrollOffset: _offset);
+      _scrollController.addListener(() {
+        _offset = _scrollController.offset;
+      });
+    }
+
+    _eventBusFn = AssignmentData.addListener(() {
+      _fetchData();
+      return;
+    });
+
+    _fetchData();
+
+    return;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _eventBusFn.cancel();
+    super.dispose();
+    return;
   }
 
   @override
   bool get wantKeepAlive => true;
 
-  List<AssignmentData> _assignmentDataList;
-
-  _init() async {
+  _fetchData() async {
     _assignmentDataList = await AssignmentData.getAllAssignment();
 //    await Future.delayed(Duration(seconds: 100));
     if (mounted) {
       setState(() {});
     }
+
+    return;
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     Widget child;
     if (null == _assignmentDataList) {
       child = buildLoadingView();
@@ -97,22 +131,23 @@ class _AssignmentOverviewState extends State<AssignmentOverview>
         AssignmentBar.title(),
         Expanded(
 //            height: _height * 80 / 100,
-            child: ReorderableListView(
+          child: ReorderableListView(
 //          header: AssignmentItem.title(),
-          children: _assignmentDataList.map((a) {
-            colorInt = (colorInt + 1) % colors.length;
-            return AssignmentBar(a, colors[colorInt], widget.onTapTitle);
-          }).toList(),
-          onReorder: (int oldIndex, int newIndex) {
-            final a = _assignmentDataList.removeAt(oldIndex);
-            if (oldIndex < newIndex) {
-              newIndex = newIndex - 1;
-            }
-            _assignmentDataList.insert(newIndex, a);
-            AssignmentData.updateAllAssignmentSortSequence();
-            setState(() {});
-          },
-        )),
+            children: _assignmentDataList.map((a) {
+              colorInt = (colorInt + 1) % colors.length;
+              return AssignmentBar(a, colors[colorInt], widget.onTapTitle);
+            }).toList(),
+            onReorder: (int oldIndex, int newIndex) {
+              final a = _assignmentDataList.removeAt(oldIndex);
+              if (oldIndex < newIndex) {
+                newIndex = newIndex - 1;
+              }
+              _assignmentDataList.insert(newIndex, a);
+              AssignmentData.updateAllAssignmentSortSequence();
+              setState(() {});
+            },
+          ),
+        ),
       ],
     );
   }

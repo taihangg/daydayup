@@ -175,7 +175,7 @@ class AssignmentDetailViewState extends State<AssignmentDetailView> {
               children: [
                 Container(width: _width * 96 / 100, child: pageView),
                 Container(width: _width * 2 / 100, child: indicator),
-                // SizedBox(width: _width * 2 / 100),
+                SizedBox(width: _width * 2 / 100),
               ],
             ),
             Column(

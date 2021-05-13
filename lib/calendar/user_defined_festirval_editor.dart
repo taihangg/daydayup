@@ -68,8 +68,17 @@ class UserDefinedFestirvalEditorState
     final _exampleText = """G11.11/#FF8C00/光棍节
 #注释：公历11月11日/颜色RGB/内容
 
+L0.1/#FF8C00/十斋日
+L0.8/#FF8C00/十斋日
+L0.14/#FF8C00/十斋日
+L0.15/#FF8C00/十斋日
+L0.18/#FF8C00/十斋日
+L0.23/#FF8C00/十斋日
+L0.24/#FF8C00/十斋日
+L0.-3/#FF8C00/十斋日
+L0.-2/#FF8C00/十斋日
 L0.-1/#FF8C00/十斋日
-#农历每月最后一天/颜色RGB/内容
+#最后一条的意义：农历每月最后一天/颜色RGB/内容
 """;
     return Scrollbar(
         child: SingleChildScrollView(

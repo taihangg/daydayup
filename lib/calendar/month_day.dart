@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:marquee_flutter/marquee_flutter.dart';
+import 'package:marquee_widget/marquee_widget.dart';
 
 class TitleDay extends StatelessWidget {
   final double screenWidth;
@@ -202,10 +202,12 @@ class DayBox extends StatelessWidget {
               child: Container(
                 width: _boxWidth,
                 height: _boxItemHight,
-                child: MarqueeWidget(
-                  richText: richText,
-                  scrollAxis: Axis.horizontal,
-                  ratioOfBlankToScreen: 0.05,
+                child: Marquee(
+                  animationDuration: Duration(milliseconds: 2000),
+                  backDuration: Duration(milliseconds: 2000),
+                  pauseDuration: Duration(milliseconds: 1000),
+                  forwardAnimation: Curves.easeOut,
+                  child: richText,
                 ),
               ),
             ),

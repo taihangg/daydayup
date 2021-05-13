@@ -238,13 +238,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.16.1"
-  marquee_flutter:
+  marquee_widget:
     dependency: "direct main"
     description:
-      name: marquee_flutter
+      name: marquee_widget
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.4"
+    version: "1.0.0"
   matcher:
     dependency: transitive
     description:
